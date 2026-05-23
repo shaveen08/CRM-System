@@ -1,0 +1,202 @@
+[
+  {
+    "id": 1,
+    "lead_id": 1,
+    "user_id": 1,
+    "title": "CRM Software Subscription",
+    "amount": 40000,
+    "probability": 75,
+    "expected_close_date": "2026-02-15",
+    "created_at": "2026-01-10"
+  },
+  {
+    "id": 2,
+    "lead_id": 2,
+    "user_id": 2,
+    "title": "Website Redesign Project",
+    "amount": 25000,
+    "probability": 60,
+    "expected_close_date": "2026-03-01",
+    "created_at": "2026-01-12"
+  },
+  {
+    "id": 3,
+    "lead_id": 3,
+    "user_id": 1,
+    "title": "Mobile App Development",
+    "amount": 80000,
+    "probability": 85,
+    "expected_close_date": "2026-02-28",
+    "created_at": "2026-01-15"
+  },
+  {
+    "id": 4,
+    "lead_id": 4,
+    "user_id": 3,
+    "title": "SEO Optimization Service",
+    "amount": 15000,
+    "probability": 50,
+    "expected_close_date": "2026-03-10",
+    "created_at": "2026-01-18"
+  },
+  {
+    "id": 5,
+    "lead_id": 5,
+    "user_id": 2,
+    "title": "E-commerce Platform Setup",
+    "amount": 95000,
+    "probability": 70,
+    "expected_close_date": "2026-04-05",
+    "created_at": "2026-01-20"
+  },
+  {
+    "id": 6,
+    "lead_id": 6,
+    "user_id": 1,
+    "title": "Digital Marketing Package",
+    "amount": 30000,
+    "probability": 65,
+    "expected_close_date": "2026-02-20",
+    "created_at": "2026-01-22"
+  },
+  {
+    "id": 7,
+    "lead_id": 7,
+    "user_id": 4,
+    "title": "Cloud Migration Service",
+    "amount": 120000,
+    "probability": 80,
+    "expected_close_date": "2026-03-15",
+    "created_at": "2026-01-25"
+  },
+  {
+    "id": 8,
+    "lead_id": 8,
+    "user_id": 3,
+    "title": "UI/UX Design Contract",
+    "amount": 22000,
+    "probability": 55,
+    "expected_close_date": "2026-02-25",
+    "created_at": "2026-01-28"
+  },
+  {
+    "id": 9,
+    "lead_id": 9,
+    "user_id": 2,
+    "title": "ERP Integration Project",
+    "amount": 150000,
+    "probability": 90,
+    "expected_close_date": "2026-04-12",
+    "created_at": "2026-02-01"
+  },
+  {
+    "id": 10,
+    "lead_id": 10,
+    "user_id": 4,
+    "title": "Social Media Management",
+    "amount": 18000,
+    "probability": 45,
+    "expected_close_date": "2026-03-08",
+    "created_at": "2026-02-03"
+  },
+  {
+    "id": 11,
+    "lead_id": 11,
+    "user_id": 5,
+    "title": "AI Chatbot Integration",
+    "amount": 65000,
+    "probability": 78,
+    "expected_close_date": "2026-03-20",
+    "created_at": "2026-02-05"
+  },
+  {
+    "id": 12,
+    "lead_id": 12,
+    "user_id": 1,
+    "title": "Inventory Management System",
+    "amount": 72000,
+    "probability": 68,
+    "expected_close_date": "2026-04-01",
+    "created_at": "2026-02-08"
+  },
+  {
+    "id": 13,
+    "lead_id": 13,
+    "user_id": 2,
+    "title": "Cybersecurity Audit",
+    "amount": 54000,
+    "probability": 73,
+    "expected_close_date": "2026-03-18",
+    "created_at": "2026-02-10"
+  },
+  {
+    "id": 14,
+    "lead_id": 14,
+    "user_id": 3,
+    "title": "HR Management Portal",
+    "amount": 88000,
+    "probability": 82,
+    "expected_close_date": "2026-04-10",
+    "created_at": "2026-02-12"
+  },
+  {
+    "id": 15,
+    "lead_id": 15,
+    "user_id": 5,
+    "title": "Data Analytics Dashboard",
+    "amount": 47000,
+    "probability": 64,
+    "expected_close_date": "2026-03-25",
+    "created_at": "2026-02-15"
+  },
+  {
+    "id": 16,
+    "lead_id": 16,
+    "user_id": 1,
+    "title": "CRM Customization",
+    "amount": 39000,
+    "probability": 58,
+    "expected_close_date": "2026-03-12",
+    "created_at": "2026-02-18"
+  },
+  {
+    "id": 17,
+    "lead_id": 17,
+    "user_id": 4,
+    "title": "Email Automation Setup",
+    "amount": 21000,
+    "probability": 52,
+    "expected_close_date": "2026-03-05",
+    "created_at": "2026-02-20"
+  },
+  {
+    "id": 18,
+    "lead_id": 18,
+    "user_id": 2,
+    "title": "Business Intelligence Tool",
+    "amount": 99000,
+    "probability": 88,
+    "expected_close_date": "2026-04-20",
+    "created_at": "2026-02-22"
+  },
+  {
+    "id": 19,
+    "lead_id": 19,
+    "user_id": 5,
+    "title": "Custom API Development",
+    "amount": 43000,
+    "probability": 66,
+    "expected_close_date": "2026-03-28",
+    "created_at": "2026-02-25"
+  },
+  {
+    "id": 20,
+    "lead_id": 20,
+    "user_id": 3,
+    "title": "SaaS Platform Subscription",
+    "amount": 56000,
+    "probability": 74,
+    "expected_close_date": "2026-04-08",
+    "created_at": "2026-02-27"
+  }
+]

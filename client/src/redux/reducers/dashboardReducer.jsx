@@ -26,6 +26,17 @@ const dashboardReducer = (state = initialState, action) => {
         },
       };
 
+    case "UPDATE_LEAD":
+      return {
+        ...state,
+        customerLeads: {
+          ...state.customerLeads,
+          leads: state.customerLeads.leads.map((lead) =>
+            lead.id === action.payload.id ? action.payload : lead,
+          ),
+        },
+      };
+
     default:
       return state;
   }

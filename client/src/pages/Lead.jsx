@@ -4,7 +4,7 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
 import { useDispatch, useSelector } from "react-redux";
-import { newLead } from "../redux/actions/dashboardAction";
+import { newLead, updateLead } from "../redux/actions/dashboardAction";
 
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -19,7 +19,6 @@ import {
 
 import useDebounce from "../utils/useDebounce";
 
-// Status options extracted as a constant for reuse in filter + form
 const STATUS_OPTIONS = ["Completed", "Pending", "Dropped"];
 const SOURCE_OPTIONS = ["Website", "Instagram", "LinkedIn", "Referral"];
 
@@ -78,11 +77,10 @@ const Lead = () => {
     return () => clearTimeout(timer);
   }, [debouncedSearchText]);
 
-  // Filter Modal
+  // -- Filter Modal ------------------------------------------------------------------------
   const [filterModal, setFilterModal] = useState(false);
   const toggleFilterModal = () => setFilterModal((prev) => !prev);
 
-  // selectedFilter is now actually used in filteredLeads below
   const [selectedFilter, setSelectedFilter] = useState([]);
 
   const handleSelectedFilter = (e, filterName) => {
@@ -96,7 +94,6 @@ const Lead = () => {
 
   const clearFilters = () => setSelectedFilter([]);
 
-  // selectedFilter is now applied in filteredLeads
   const filteredLeads = useMemo(() => {
     return [...customerLead]
       .filter((lead) => {
@@ -143,10 +140,6 @@ const Lead = () => {
     setVisibleCount(7);
   }, [searchLead]);
 
-  // Add Modal
-  const [addModal, setAddModal] = useState(false);
-  const toggleAddModal = () => setAddModal((prev) => !prev);
-
   // Format Date
   const formatDate = (date) => {
     const d = date.getDate().toString().padStart(2, "0");
@@ -155,11 +148,19 @@ const Lead = () => {
     return `${d}/${m}/${y}`;
   };
 
-  // getNextId is a function so it's always fresh when called
+  // -- ADD MODAL -----------------------------------------------------------------
+
+  const [addModal, setAddModal] = useState(false);
+  const toggleAddModal = () => setAddModal((prev) => !prev);
+  const addModalRef = useRef();
+
+  const handleAddClickOutside = (e) => {
+    if (e.target === addModalRef.current) setAddModal(false);
+  };
+
   const getNextId = () =>
     customerLead.length > 0 ? customerLead[customerLead.length - 1].id + 1 : 1;
 
-  // initialLeadForm is now a function so it's always fresh
   const getInitialForm = () => ({
     id: getNextId(),
     name: "",
@@ -193,13 +194,41 @@ const Lead = () => {
       }),
     );
 
-    // Reset form with fresh ID after dispatch (uses +1 from current length)
-    setAddLeadFormData({
-      ...getInitialForm(),
-      id: customerLead.length + 1,
-    });
-
+    setAddLeadFormData({ ...getInitialForm(), id: customerLead.length + 1 });
     setAddModal(false);
+  };
+
+  // -- EDIT MODAL --------------------------------------------------------------
+
+  const [editModal, setEditModal] = useState(false);
+  const toggleEditModal = () => setEditModal((prev) => !prev);
+  const editModalRef = useRef();
+
+  const handleEditClickOutside = (e) => {
+    if (e.target === editModalRef.current) setEditModal(false);
+  };
+
+  // store the actual lead object not a DOM ref
+  const [editLeadFormData, setEditLeadFormData] = useState(null);
+
+  const handleEditData = (e, lead) => {
+    e.preventDefault();
+    setEditLeadFormData({ ...lead });
+    setEditModal(true);
+  };
+
+  const handleEditLeadChange = (e) => {
+    const { name, value } = e.target;
+    setEditLeadFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  // dedicated submit handler for editing
+  const handleEditLead = (e) => {
+    e.preventDefault();
+    // dispatch update action
+    dispatch(updateLead(editLeadFormData));
+    setEditModal(false);
+    setEditLeadFormData(null);
   };
 
   return (
@@ -209,8 +238,9 @@ const Lead = () => {
       <div className="flex flex-col w-full ml-60 pt-16 overflow-hidden">
         <Navbar />
 
+        {/* Main Container */}
         <div className="p-4 flex flex-col gap-6">
-          <section className="w-full bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-xl shadow-gray-200">
+          <section className="w-full bg-white border border-gray-100 rounded-xl overflow-hidden shadow-xl shadow-gray-200">
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 bg-primary-50 border-b border-gray-100">
               <div>
@@ -221,7 +251,6 @@ const Lead = () => {
               </div>
 
               <div className="flex gap-3">
-                {/* Search input now has value prop (controlled) */}
                 <div className="relative">
                   <div className="absolute top-2.5 left-2">
                     <HugeiconsIcon
@@ -255,9 +284,8 @@ const Lead = () => {
                     <HugeiconsIcon icon={Filter} size={16} />
                   </button>
 
-                  {/* Filter Modal now actually renders with UI */}
                   {filterModal && (
-                    <div className="absolute right-0 top-11 z-50 w-52 rounded-xl border border-gray-100 bg-white shadow-xl p-3">
+                    <div className="absolute right-0 top-11 z-50 w-52 rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-200 p-3">
                       <div className="flex items-center justify-between mb-2">
                         <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                           Filter by Status
@@ -404,7 +432,11 @@ const Lead = () => {
                         {/* Actions */}
                         <td className="py-4 text-gray-500">
                           <div className="flex gap-2 items-center">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer">
+                            {/* it pass lead object directly, not DOM index */}
+                            <div
+                              onClick={(e) => handleEditData(e, lead)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer"
+                            >
                               <HugeiconsIcon
                                 icon={PencilEdit01Icon}
                                 size={16}
@@ -445,7 +477,11 @@ const Lead = () => {
 
       {/* Add Modal */}
       {addModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+        <div
+          ref={addModalRef}
+          onClick={handleAddClickOutside}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        >
           <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
             <div className="flex items-center justify-between border-b border-gray-100 bg-primary-50 p-4">
               <div>
@@ -478,7 +514,6 @@ const Lead = () => {
                   required
                   className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
                 />
-
                 <input
                   type="email"
                   name="email"
@@ -488,7 +523,6 @@ const Lead = () => {
                   required
                   className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
                 />
-
                 <input
                   type="tel"
                   name="phone"
@@ -498,7 +532,6 @@ const Lead = () => {
                   required
                   className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
                 />
-
                 <select
                   name="source"
                   value={addLeadFormData.source}
@@ -513,7 +546,6 @@ const Lead = () => {
                     </option>
                   ))}
                 </select>
-
                 <select
                   name="status"
                   value={addLeadFormData.status}
@@ -528,7 +560,6 @@ const Lead = () => {
                     </option>
                   ))}
                 </select>
-
                 <input
                   type="number"
                   name="dealValue"
@@ -538,7 +569,6 @@ const Lead = () => {
                   required
                   className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
                 />
-
                 <div className="md:col-span-2 flex justify-end gap-3">
                   <button
                     type="button"
@@ -552,6 +582,121 @@ const Lead = () => {
                     className="rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800"
                   >
                     Save Lead
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {editModal && editLeadFormData && (
+        <div
+          ref={editModalRef}
+          onClick={handleEditClickOutside}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        >
+          <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b border-gray-100 bg-primary-50 p-4">
+              <div>
+                <h4 className="text-base font-semibold text-gray-800">
+                  Edit Lead
+                </h4>
+                <p className="text-sm text-gray-500">
+                  Update customer lead information
+                </p>
+              </div>
+              <div
+                onClick={toggleEditModal}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white hover:bg-gray-100 cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={18} color="#6b7280" />
+              </div>
+            </div>
+
+            <div className="p-4">
+              <form
+                onSubmit={handleEditLead}
+                className="grid grid-cols-1 md:grid-cols-2 gap-5"
+              >
+                <input
+                  type="text"
+                  name="name"
+                  value={editLeadFormData.name}
+                  onChange={handleEditLeadChange}
+                  placeholder="Name"
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                />
+                <input
+                  type="email"
+                  name="email"
+                  value={editLeadFormData.email}
+                  onChange={handleEditLeadChange}
+                  placeholder="Email"
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                />
+                <input
+                  type="tel"
+                  name="phone"
+                  value={editLeadFormData.phone}
+                  onChange={handleEditLeadChange}
+                  placeholder="Phone"
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                />
+                <select
+                  name="source"
+                  value={editLeadFormData.source}
+                  onChange={handleEditLeadChange}
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                >
+                  <option value="">Select Source</option>
+                  {SOURCE_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  name="status"
+                  value={editLeadFormData.status}
+                  onChange={handleEditLeadChange}
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                >
+                  <option value="">Select Status</option>
+                  {STATUS_OPTIONS.map((s) => (
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  name="dealValue"
+                  value={editLeadFormData.dealValue}
+                  onChange={handleEditLeadChange}
+                  placeholder="Deal Value"
+                  required
+                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                />
+                <div className="md:col-span-2 flex justify-end gap-3">
+                  <button
+                    type="button"
+                    onClick={toggleEditModal}
+                    className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800"
+                  >
+                    Save Changes
                   </button>
                 </div>
               </form>

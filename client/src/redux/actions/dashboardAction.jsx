@@ -12,3 +12,8 @@ export const newLead = (data) => ({
   type: "NEW_LEAD",
   payload: data,
 });
+
+export const updateLead = (updatedLead) => ({
+  type: "UPDATE_LEAD",
+  payload: updatedLead,
+});
