@@ -37,6 +37,17 @@ const dashboardReducer = (state = initialState, action) => {
         },
       };
 
+    case "DELETE_LEAD":
+      return {
+        ...state,
+        customerLeads: {
+          ...state.customerLeads,
+          leads: state.customerLeads.leads.filter(
+            (lead) => lead.id !== action.payload,
+          ),
+        },
+      };
+
     default:
       return state;
   }

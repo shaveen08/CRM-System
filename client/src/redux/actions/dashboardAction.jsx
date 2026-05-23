@@ -13,7 +13,12 @@ export const newLead = (data) => ({
   payload: data,
 });
 
-export const updateLead = (updatedLead) => ({
+export const updateLead = (data) => ({
   type: "UPDATE_LEAD",
-  payload: updatedLead,
+  payload: data,
 });
+
+export const deleteLead = (data) => ({
+  type: "DELETE_LEAD",
+  payload: data,
+})

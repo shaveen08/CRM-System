@@ -4,7 +4,11 @@ import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 
 import { useDispatch, useSelector } from "react-redux";
-import { newLead, updateLead } from "../redux/actions/dashboardAction";
+import {
+  newLead,
+  updateLead,
+  deleteLead,
+} from "../redux/actions/dashboardAction";
 
 import { HugeiconsIcon } from "@hugeicons/react";
 
@@ -231,6 +235,29 @@ const Lead = () => {
     setEditLeadFormData(null);
   };
 
+  // -- DELETE Data ------------------------------------------------------------------------
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [deleteLeadId, setDeleteLeadId] = useState(null);
+  const deleteModalRef = useRef();
+
+  const handleDeleteClick = (id) => {
+    setDeleteLeadId(id);
+    setDeleteModal(true);
+  };
+
+  const handleConfirmDelete = () => {
+    dispatch(deleteLead(deleteLeadId));
+    setDeleteModal(false);
+    setDeleteLeadId(null);
+  };
+
+  const handleDeleteClickOutside = (e) => {
+    if (e.target === deleteModalRef.current) {
+      setDeleteModal(false);
+      setDeleteLeadId(null);
+    }
+  };
+
   return (
     <div className="flex h-screen w-full">
       <Sidebar />
@@ -345,6 +372,7 @@ const Lead = () => {
               className="h-130 overflow-y-auto scrollbar-hide"
             >
               <table className="w-full text-sm">
+                {/* Tabel header */}
                 <thead className="bg-primary-50 sticky top-0 z-10">
                   <tr className="text-left text-gray-500 border-b border-gray-200">
                     {leadTableHead.map((head, index) => (
@@ -372,6 +400,7 @@ const Lead = () => {
                   </tr>
                 </thead>
 
+                {/* Tabel body */}
                 <tbody>
                   {loading ? (
                     <tr>
@@ -443,7 +472,10 @@ const Lead = () => {
                                 color="#534ab7"
                               />
                             </div>
-                            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer">
+                            <div
+                              onClick={() => handleDeleteClick(lead.id)}
+                              className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer"
+                            >
                               <HugeiconsIcon
                                 icon={Delete02Icon}
                                 size={16}
@@ -700,6 +732,66 @@ const Lead = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {deleteModal && (
+        <div
+          ref={deleteModalRef}
+          onClick={handleDeleteClickOutside}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
+        >
+          <div className="w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-xl">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-gray-100 bg-red-50 p-4">
+              <div>
+                <h4 className="text-base font-semibold text-gray-800">
+                  Delete Lead
+                </h4>
+                <p className="text-sm text-gray-500">
+                  This action cannot be undone
+                </p>
+              </div>
+              <div
+                onClick={() => setDeleteModal(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-lg bg-white hover:bg-gray-100 cursor-pointer"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={18} color="#6b7280" />
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6 flex flex-col items-center gap-4">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+                <HugeiconsIcon icon={Delete02Icon} size={26} color="#cd0000" />
+              </div>
+              <div className="text-center">
+                <p className="text-sm font-medium text-gray-800">
+                  Are you sure you want to delete this lead?
+                </p>
+                <p className="text-sm text-gray-400 mt-1">
+                  This will permanently remove the lead from your list.
+                </p>
+              </div>
+
+              {/* Buttons */}
+              <div className="flex w-full gap-3 mt-2">
+                <button
+                  onClick={() => setDeleteModal(false)}
+                  className="flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmDelete}
+                  className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700"
+                >
+                  Yes, Delete
+                </button>
+              </div>
             </div>
           </div>
         </div>
