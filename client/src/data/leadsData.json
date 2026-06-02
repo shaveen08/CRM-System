@@ -1,231 +1,222 @@
-{
-  "summary": {
-    "totalLeads": 20,
-    "pendingLeads": 6,
-    "completedLeads": 10,
-    "droppedLeads": 4,
-    "conversionRate": 50
+[
+  {
+    "id": 1,
+    "name": "Arun Kumar",
+    "email": "arun.kumar@gmail.com",
+    "phone": "9876543210",
+    "source": "Website",
+    "status": "Completed",
+    "dealValue": 25000,
+    "createdAt": "2026-01-05",
+    "lastContacted": "2026-01-10"
   },
-  "leads": [
-    {
-      "id": 1,
-      "name": "Arun Kumar",
-      "email": "arun.kumar@gmail.com",
-      "phone": "9876543210",
-      "source": "Website",
-      "status": "Completed",
-      "dealValue": 25000,
-      "createdAt": "2026-01-05",
-      "lastContacted": "2026-01-10"
-    },
-    {
-      "id": 2,
-      "name": "Priya Sharma",
-      "email": "priya.sharma@gmail.com",
-      "phone": "9123456780",
-      "source": "Facebook Ads",
-      "status": "Pending",
-      "dealValue": 18000,
-      "createdAt": "2026-01-12",
-      "lastContacted": "2026-01-15"
-    },
-    {
-      "id": 3,
-      "name": "Rahul Verma",
-      "email": "rahul.verma@gmail.com",
-      "phone": "9988776655",
-      "source": "Referral",
-      "status": "Completed",
-      "dealValue": 32000,
-      "createdAt": "2026-01-18",
-      "lastContacted": "2026-01-22"
-    },
-    {
-      "id": 4,
-      "name": "Sneha Iyer",
-      "email": "sneha.iyer@gmail.com",
-      "phone": "9090909090",
-      "source": "Website",
-      "status": "Dropped",
-      "dealValue": 15000,
-      "createdAt": "2026-02-01",
-      "lastContacted": "2026-02-03"
-    },
-    {
-      "id": 5,
-      "name": "Karthik R",
-      "email": "karthik.r@gmail.com",
-      "phone": "9012345678",
-      "source": "Instagram Ads",
-      "status": "Pending",
-      "dealValue": 22000,
-      "createdAt": "2026-02-05",
-      "lastContacted": "2026-02-07"
-    },
-    {
-      "id": 6,
-      "name": "Divya Nair",
-      "email": "divya.nair@gmail.com",
-      "phone": "9345678901",
-      "source": "Website",
-      "status": "Completed",
-      "dealValue": 28000,
-      "createdAt": "2026-02-10",
-      "lastContacted": "2026-02-14"
-    },
-    {
-      "id": 7,
-      "name": "Vikram Singh",
-      "email": "vikram.singh@gmail.com",
-      "phone": "9765432109",
-      "source": "LinkedIn",
-      "status": "Completed",
-      "dealValue": 40000,
-      "createdAt": "2026-02-15",
-      "lastContacted": "2026-02-20"
-    },
-    {
-      "id": 8,
-      "name": "Anjali Gupta",
-      "email": "anjali.gupta@gmail.com",
-      "phone": "9871234560",
-      "source": "Referral",
-      "status": "Dropped",
-      "dealValue": 12000,
-      "createdAt": "2026-02-18",
-      "lastContacted": "2026-02-21"
-    },
-    {
-      "id": 9,
-      "name": "Rohit Mehta",
-      "email": "rohit.mehta@gmail.com",
-      "phone": "9988123456",
-      "source": "Google Ads",
-      "status": "Pending",
-      "dealValue": 27000,
-      "createdAt": "2026-03-01",
-      "lastContacted": "2026-03-04"
-    },
-    {
-      "id": 10,
-      "name": "Meena Subramani",
-      "email": "meena.subramani@gmail.com",
-      "phone": "9098765432",
-      "source": "Website",
-      "status": "Completed",
-      "dealValue": 35000,
-      "createdAt": "2026-03-05",
-      "lastContacted": "2026-03-08"
-    },
-    {
-      "id": 11,
-      "name": "Suresh Babu",
-      "email": "suresh.babu@gmail.com",
-      "phone": "9876541230",
-      "source": "Cold Call",
-      "status": "Pending",
-      "dealValue": 14000,
-      "createdAt": "2026-03-10",
-      "lastContacted": "2026-03-12"
-    },
-    {
-      "id": 12,
-      "name": "Pooja Reddy",
-      "email": "pooja.reddy@gmail.com",
-      "phone": "9123987654",
-      "source": "Instagram Ads",
-      "status": "Completed",
-      "dealValue": 31000,
-      "createdAt": "2026-03-15",
-      "lastContacted": "2026-03-18"
-    },
-    {
-      "id": 13,
-      "name": "Ajay Patel",
-      "email": "ajay.patel@gmail.com",
-      "phone": "9988771122",
-      "source": "Referral",
-      "status": "Completed",
-      "dealValue": 45000,
-      "createdAt": "2026-03-20",
-      "lastContacted": "2026-03-25"
-    },
-    {
-      "id": 14,
-      "name": "Kavya Menon",
-      "email": "kavya.menon@gmail.com",
-      "phone": "9871209876",
-      "source": "LinkedIn",
-      "status": "Dropped",
-      "dealValue": 20000,
-      "createdAt": "2026-03-25",
-      "lastContacted": "2026-03-27"
-    },
-    {
-      "id": 15,
-      "name": "Manoj Das",
-      "email": "manoj.das@gmail.com",
-      "phone": "9765432198",
-      "source": "Google Ads",
-      "status": "Completed",
-      "dealValue": 26000,
-      "createdAt": "2026-04-01",
-      "lastContacted": "2026-04-05"
-    },
-    {
-      "id": 16,
-      "name": "Neha Kapoor",
-      "email": "neha.kapoor@gmail.com",
-      "phone": "9090901234",
-      "source": "Website",
-      "status": "Pending",
-      "dealValue": 23000,
-      "createdAt": "2026-04-05",
-      "lastContacted": "2026-04-07"
-    },
-    {
-      "id": 17,
-      "name": "Deepak Yadav",
-      "email": "deepak.yadav@gmail.com",
-      "phone": "9345612789",
-      "source": "Cold Call",
-      "status": "Completed",
-      "dealValue": 30000,
-      "createdAt": "2026-04-10",
-      "lastContacted": "2026-04-12"
-    },
-    {
-      "id": 18,
-      "name": "Swathi Krishnan",
-      "email": "swathi.krishnan@gmail.com",
-      "phone": "9873412567",
-      "source": "Instagram Ads",
-      "status": "Dropped",
-      "dealValue": 17000,
-      "createdAt": "2026-04-12",
-      "lastContacted": "2026-04-14"
-    },
-    {
-      "id": 19,
-      "name": "Harish Kumar",
-      "email": "harish.kumar@gmail.com",
-      "phone": "9012765432",
-      "source": "Referral",
-      "status": "Completed",
-      "dealValue": 38000,
-      "createdAt": "2026-04-15",
-      "lastContacted": "2026-04-18"
-    },
-    {
-      "id": 20,
-      "name": "Lakshmi Devi",
-      "email": "lakshmi.devi@gmail.com",
-      "phone": "9987612345",
-      "source": "Google Ads",
-      "status": "Pending",
-      "dealValue": 21000,
-      "createdAt": "2026-04-20",
-      "lastContacted": "2026-04-22"
-    }
-  ]
-}
+  {
+    "id": 2,
+    "name": "Priya Sharma",
+    "email": "priya.sharma@gmail.com",
+    "phone": "9123456780",
+    "source": "Facebook Ads",
+    "status": "Pending",
+    "dealValue": 18000,
+    "createdAt": "2026-01-12",
+    "lastContacted": "2026-01-15"
+  },
+  {
+    "id": 3,
+    "name": "Rahul Verma",
+    "email": "rahul.verma@gmail.com",
+    "phone": "9988776655",
+    "source": "Referral",
+    "status": "Completed",
+    "dealValue": 32000,
+    "createdAt": "2026-01-18",
+    "lastContacted": "2026-01-22"
+  },
+  {
+    "id": 4,
+    "name": "Sneha Iyer",
+    "email": "sneha.iyer@gmail.com",
+    "phone": "9090909090",
+    "source": "Website",
+    "status": "Dropped",
+    "dealValue": 15000,
+    "createdAt": "2026-02-01",
+    "lastContacted": "2026-02-03"
+  },
+  {
+    "id": 5,
+    "name": "Karthik R",
+    "email": "karthik.r@gmail.com",
+    "phone": "9012345678",
+    "source": "Instagram Ads",
+    "status": "Pending",
+    "dealValue": 22000,
+    "createdAt": "2026-02-05",
+    "lastContacted": "2026-02-07"
+  },
+  {
+    "id": 6,
+    "name": "Divya Nair",
+    "email": "divya.nair@gmail.com",
+    "phone": "9345678901",
+    "source": "Website",
+    "status": "Completed",
+    "dealValue": 28000,
+    "createdAt": "2026-02-10",
+    "lastContacted": "2026-02-14"
+  },
+  {
+    "id": 7,
+    "name": "Vikram Singh",
+    "email": "vikram.singh@gmail.com",
+    "phone": "9765432109",
+    "source": "LinkedIn",
+    "status": "Completed",
+    "dealValue": 40000,
+    "createdAt": "2026-02-15",
+    "lastContacted": "2026-02-20"
+  },
+  {
+    "id": 8,
+    "name": "Anjali Gupta",
+    "email": "anjali.gupta@gmail.com",
+    "phone": "9871234560",
+    "source": "Referral",
+    "status": "Dropped",
+    "dealValue": 12000,
+    "createdAt": "2026-02-18",
+    "lastContacted": "2026-02-21"
+  },
+  {
+    "id": 9,
+    "name": "Rohit Mehta",
+    "email": "rohit.mehta@gmail.com",
+    "phone": "9988123456",
+    "source": "Google Ads",
+    "status": "Pending",
+    "dealValue": 27000,
+    "createdAt": "2026-03-01",
+    "lastContacted": "2026-03-04"
+  },
+  {
+    "id": 10,
+    "name": "Meena Subramani",
+    "email": "meena.subramani@gmail.com",
+    "phone": "9098765432",
+    "source": "Website",
+    "status": "Completed",
+    "dealValue": 35000,
+    "createdAt": "2026-03-05",
+    "lastContacted": "2026-03-08"
+  },
+  {
+    "id": 11,
+    "name": "Suresh Babu",
+    "email": "suresh.babu@gmail.com",
+    "phone": "9876541230",
+    "source": "Cold Call",
+    "status": "Pending",
+    "dealValue": 14000,
+    "createdAt": "2026-03-10",
+    "lastContacted": "2026-03-12"
+  },
+  {
+    "id": 12,
+    "name": "Pooja Reddy",
+    "email": "pooja.reddy@gmail.com",
+    "phone": "9123987654",
+    "source": "Instagram Ads",
+    "status": "Completed",
+    "dealValue": 31000,
+    "createdAt": "2026-03-15",
+    "lastContacted": "2026-03-18"
+  },
+  {
+    "id": 13,
+    "name": "Ajay Patel",
+    "email": "ajay.patel@gmail.com",
+    "phone": "9988771122",
+    "source": "Referral",
+    "status": "Completed",
+    "dealValue": 45000,
+    "createdAt": "2026-03-20",
+    "lastContacted": "2026-03-25"
+  },
+  {
+    "id": 14,
+    "name": "Kavya Menon",
+    "email": "kavya.menon@gmail.com",
+    "phone": "9871209876",
+    "source": "LinkedIn",
+    "status": "Dropped",
+    "dealValue": 20000,
+    "createdAt": "2026-03-25",
+    "lastContacted": "2026-03-27"
+  },
+  {
+    "id": 15,
+    "name": "Manoj Das",
+    "email": "manoj.das@gmail.com",
+    "phone": "9765432198",
+    "source": "Google Ads",
+    "status": "Completed",
+    "dealValue": 26000,
+    "createdAt": "2026-04-01",
+    "lastContacted": "2026-04-05"
+  },
+  {
+    "id": 16,
+    "name": "Neha Kapoor",
+    "email": "neha.kapoor@gmail.com",
+    "phone": "9090901234",
+    "source": "Website",
+    "status": "Pending",
+    "dealValue": 23000,
+    "createdAt": "2026-04-05",
+    "lastContacted": "2026-04-07"
+  },
+  {
+    "id": 17,
+    "name": "Deepak Yadav",
+    "email": "deepak.yadav@gmail.com",
+    "phone": "9345612789",
+    "source": "Cold Call",
+    "status": "Completed",
+    "dealValue": 30000,
+    "createdAt": "2026-04-10",
+    "lastContacted": "2026-04-12"
+  },
+  {
+    "id": 18,
+    "name": "Swathi Krishnan",
+    "email": "swathi.krishnan@gmail.com",
+    "phone": "9873412567",
+    "source": "Instagram Ads",
+    "status": "Dropped",
+    "dealValue": 17000,
+    "createdAt": "2026-04-12",
+    "lastContacted": "2026-04-14"
+  },
+  {
+    "id": 19,
+    "name": "Harish Kumar",
+    "email": "harish.kumar@gmail.com",
+    "phone": "9012765432",
+    "source": "Referral",
+    "status": "Completed",
+    "dealValue": 38000,
+    "createdAt": "2026-04-15",
+    "lastContacted": "2026-04-18"
+  },
+  {
+    "id": 20,
+    "name": "Lakshmi Devi",
+    "email": "lakshmi.devi@gmail.com",
+    "phone": "9987612345",
+    "source": "Google Ads",
+    "status": "Pending",
+    "dealValue": 21000,
+    "createdAt": "2026-04-20",
+    "lastContacted": "2026-04-22"
+  }
+]

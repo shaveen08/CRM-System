@@ -6,6 +6,8 @@ import {
   UserGroupIcon,
   Settings02Icon,
   CheckListIcon,
+  UserIcon,
+  ContactIcon,
 } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -27,9 +29,9 @@ const Sidebar = () => {
     },
     {
       id: 3,
-      menuName: "Deals",
-      path: "/deals",
-      icon: <HugeiconsIcon icon={Agreement02Icon} size={20} />,
+      menuName: "Contacts",
+      path: "/contacts",
+      icon: <HugeiconsIcon icon={ContactIcon} size={20} />,
     },
     {
       id: 4,
@@ -39,16 +41,22 @@ const Sidebar = () => {
     },
     {
       id: 5,
-      menuName: "Reminder",
-      path: "/reminder",
-      icon: <HugeiconsIcon icon={CheckListIcon} size={20} />,
+      menuName: "Users",
+      path: "/users",
+      icon: <HugeiconsIcon icon={UserIcon} size={20} />,
     },
-    {
-      id: 6,
-      menuName: "Settings",
-      path: "/settings",
-      icon: <HugeiconsIcon icon={Settings02Icon} size={20} />,
-    },
+    // {
+    //   id: 5,
+    //   menuName: "Reminder",
+    //   path: "/reminder",
+    //   icon: <HugeiconsIcon icon={CheckListIcon} size={20} />,
+    // },
+    // {
+    //   id: 6,
+    //   menuName: "Settings",
+    //   path: "/settings",
+    //   icon: <HugeiconsIcon icon={Settings02Icon} size={20} />,
+    // },
   ];
 
   return (

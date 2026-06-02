@@ -46,8 +46,8 @@ const Dashboard = () => {
   const dashboardData = useSelector((state) => state.dashboard.data) || {};
 
   // Dashboard customer leads
-  const customerLead =
-    useSelector((state) => state.dashboard.customerLeads?.leads) || [];
+  const data =
+    useSelector((state) => state.dashboard.datas?.leads) || [];
 
   // Date
   const today = new Date();

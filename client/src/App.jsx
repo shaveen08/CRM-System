@@ -7,13 +7,17 @@ import Skeleton from "./components/skeleton/Skeleton";
 // JSON Data
 import dashboardData from "./data/dashboardData.json";
 import leadsData from "./data/leadsData.json";
+import contactData from "./data/contactData.json";
+import activityData from "./data/activityData.json";
 
 // Reux
 import { useDispatch } from "react-redux";
 import {
-  dashboardFetchData,
-  dashboardCustomerLeads,
-} from "./redux/actions/dashboardAction";
+  dashboardModuleData,
+  leadModuleData,
+  contactModuleData,
+  activityModuleData,
+} from "./redux/actions/modulesAction";
 
 // Routing
 import ProtectedRoutes from "./routes/ProtectedRoutes";
@@ -23,13 +27,17 @@ import Registeration from "./pages/Registeration";
 // Lazy routing
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Lead = lazy(() => import("./pages/Lead"));
+const Contacts = lazy(() => import("./pages/Contacts"));
+const Activity = lazy(() => import("./pages/Activity"));
 
 const App = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(dashboardFetchData(dashboardData));
-    dispatch(dashboardCustomerLeads(leadsData));
+    dispatch(dashboardModuleData(dashboardData));
+    dispatch(leadModuleData(leadsData));
+    dispatch(contactModuleData(contactData));
+    dispatch(activityModuleData(activityData));
   }, [dispatch]);
 
   return (
@@ -45,6 +53,8 @@ const App = () => {
             <Route element={<ProtectedRoutes />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/lead" element={<Lead />} />
+              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/activity" element={<Activity />} />
             </Route>
           </Routes>
         </Suspense>

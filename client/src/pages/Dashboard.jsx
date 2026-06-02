@@ -56,7 +56,7 @@ const Dashboard = () => {
   }, []);
 
   // Dashboard Data
-  const dashboardData = useSelector((state) => state.dashboard.data) || {};
+  const dashboardData = useSelector((state) => state.modules.dashboardData) || {};
 
   // Date
   const today = new Date();

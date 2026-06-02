@@ -32,9 +32,9 @@ const Lead = () => {
 
   // Redux Store Data
   const customerData =
-    useSelector((state) => state.dashboard.customerLeads) || {};
+    useSelector((state) => state.dashboard.datas) || {};
 
-  const customerLead = customerData?.leads || [];
+  const data = customerData?.leads || [];
   const summary = customerData?.summary || {};
 
   // Statistics Cards
@@ -82,7 +82,7 @@ const Lead = () => {
   const debouncedSearch = useMemo(() => debounce(searchHandle, 500), []);
 
   // Filter Leads
-  const filteredLeads = customerLead.filter((lead) =>
+  const filteredLeads = data.filter((lead) =>
     lead.name.toLowerCase().includes(searchLead.toLowerCase()),
   );
 
@@ -359,9 +359,9 @@ const Lead = () => {
 
   // Redux Store Data
   const customerData =
-    useSelector((state) => state.dashboard.customerLeads) || {};
+    useSelector((state) => state.dashboard.datas) || {};
 
-  const customerLead = customerData?.leads || [];
+  const data = customerData?.leads || [];
   const summary = customerData?.summary || {};
 
   // Statistics Cards
@@ -409,7 +409,7 @@ const Lead = () => {
   const debouncedSearch = useMemo(() => debounce(searchHandle, 500), []);
 
   // Filter Leads
-  const filteredLeads = customerLead.filter((lead) =>
+  const filteredLeads = data.filter((lead) =>
     lead.name.toLowerCase().includes(searchLead.toLowerCase()),
   );
 
