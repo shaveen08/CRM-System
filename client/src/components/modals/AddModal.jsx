@@ -1,8 +1,9 @@
 import React, { useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
+import useNotification from "../../utils/useNotification";
 
-const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction }) => {
+const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerNotification, }) => {
   const getNextId = () => (data.length > 0 ? data[data.length - 1].id + 1 : 1);
 
   const getInitialForm = () => ({
@@ -35,6 +36,11 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction }) => {
       }),
     );
     setFormData(getInitialForm());
+    triggerNotification({
+      type: "success",
+      message: "Record added successfully!",
+      duration: 3000,
+    });
     onClose();
   };
 
@@ -82,7 +88,7 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction }) => {
                   className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500 text-gray-700"
                 >
                   <option value="">Select {field.label}</option>
-                  {field.options.map((opt) => (
+                  {field.options?.map((opt) => (
                     <option key={opt} value={opt}>
                       {opt}
                     </option>

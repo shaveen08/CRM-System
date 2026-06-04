@@ -3,6 +3,8 @@ const initialState = {
   leadsData: [],
   contactData: [],
   activityData: [],
+  userData: [],
+  notificationData: [],
 };
 
 const modulesReducer = (state = initialState, action) => {
@@ -15,6 +17,20 @@ const modulesReducer = (state = initialState, action) => {
       return { ...state, contactData: action.payload };
     case "ACTIVITY_DATA":
       return { ...state, activityData: action.payload };
+    case "USER_DATA":
+      return { ...state, userData: action.payload };
+
+    // Notification
+    case "NOTIFICATION_DATA":
+      return { ...state, notificationData: action.payload };
+
+    case "MARK_NOTIFICATION_READ":
+      return {
+        ...state,
+        notificationData: state.notificationData.map((item) =>
+          item.id === action.payload ? { ...item, isRead: true } : item,
+        ),
+      };
 
     // Lead
     case "NEW_LEAD":
@@ -88,6 +104,35 @@ const modulesReducer = (state = initialState, action) => {
       return {
         ...state,
         activityData: state.activityData.filter(
+          (item) => !action.payload.includes(item.id),
+        ),
+      };
+
+    // User
+    case "NEW_USER":
+      return {
+        ...state,
+        userData: [...state.userData, action.payload],
+      };
+
+    case "UPDATE_USER":
+      return {
+        ...state,
+        userData: state.userData.map((item) =>
+          item.id === action.payload.id ? action.payload : item,
+        ),
+      };
+
+    case "DELETE_USER":
+      return {
+        ...state,
+        userData: state.userData.filter((item) => item.id !== action.payload),
+      };
+
+    case "DELETE_MULTIPLE_USERS":
+      return {
+        ...state,
+        userData: state.userData.filter(
           (item) => !action.payload.includes(item.id),
         ),
       };

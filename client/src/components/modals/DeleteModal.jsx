@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
+import useNotification from "../../utils/useNotification";
 
 const DeleteModal = ({
   isOpen,
@@ -8,11 +9,17 @@ const DeleteModal = ({
   deleteLeadId,
   dispatch,
   deleteAction,
+  triggerNotification,
 }) => {
   const modalRef = useRef();
 
   const handleConfirmDelete = () => {
     dispatch(deleteAction(deleteLeadId));
+    triggerNotification({
+      type: "warning",
+      message: "Record deleted successfully!",
+      duration: 3000,
+    });
     onClose();
   };
 

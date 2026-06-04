@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
 import Tabel from "../components/Tabel";
+import useNotification from "../utils/useNotification";
 
 const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
   const customerData = useSelector(selector) || {};
@@ -27,8 +28,12 @@ const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
       }));
   }, [data]);
 
+  const { triggerNotification, NotificationComponent } =
+    useNotification("top-right");
+
   return (
     <div className="flex h-screen w-full">
+      {NotificationComponent}
       <Sidebar />
 
       <div className="flex flex-col w-full ml-60 pt-16 overflow-hidden">
@@ -42,6 +47,7 @@ const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
             data={data}
             fields={fields}
             module={module}
+            triggerNotification={triggerNotification}
           />
         </div>
       </div>

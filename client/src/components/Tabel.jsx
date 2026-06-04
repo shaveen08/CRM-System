@@ -12,8 +12,13 @@ import {
   newActivity,
   updateActivity,
   deleteActivity,
+  newUser,
   deleteMultipleActivities,
+  updateUser,
+  deleteUser,
+  deleteMultipleUsers,
 } from "../redux/actions/modulesAction";
+
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Delete02Icon,
@@ -24,6 +29,7 @@ import {
   Upload06Icon,
   ViewIcon,
 } from "@hugeicons/core-free-icons";
+
 import useDebounce from "../utils/useDebounce";
 import AddModal from "./modals/AddModal";
 import EditModal from "./modals/EditModal";
@@ -52,9 +58,23 @@ const ACTION_MAP = {
     remove: deleteActivity,
     bulkRemove: deleteMultipleActivities,
   },
+  user: {
+    add: newUser,
+    update: updateUser,
+    remove: deleteUser,
+    bulkRemove: deleteMultipleUsers,
+  },
 };
 
-const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
+const Tabel = ({
+  data,
+  title,
+  subtitle,
+  tableHead,
+  fields,
+  module,
+  triggerNotification,
+}) => {
   const dispatch = useDispatch();
 
   const actions = ACTION_MAP[module] || ACTION_MAP.lead;
@@ -82,6 +102,17 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
   const sortDateLeads = () => {
     setDateSort((prev) => (prev === "asc" ? "desc" : "asc"));
     setNameSort("");
+  };
+
+  // Date format
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    return new Date(date).toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    });
   };
 
   const [loading, setLoading] = useState(false);
@@ -314,6 +345,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
           className="h-130 overflow-auto scrollbar-hide"
         >
           <table className="w-full text-sm">
+            {/* Table Head */}
             <thead className="bg-primary-50 sticky top-0 z-10">
               <tr className="text-left text-gray-500 border-b border-gray-200">
                 <th className="p-2 pl-6 w-10">
@@ -353,6 +385,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
               </tr>
             </thead>
 
+            {/* Table Body */}
             <tbody>
               {loading ? (
                 <tr>
@@ -379,7 +412,15 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
                     </td>
 
                     {tableHead.map((column) => (
-                      <td key={column.key} className="py-4 pl-4 text-gray-600">
+                      <td
+                        key={column.key}
+                        className={`py-4 pl-4 text-gray-600 ${
+                          column.key === "createdAt" ||
+                          column.key === "lastLogin"
+                            ? "whitespace-nowrap min-w-35"
+                            : ""
+                        }`}
+                      >
                         {column.key === "name" ? (
                           <div className="flex gap-3 items-center">
                             <div
@@ -387,7 +428,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
                             >
                               {lead.name?.[0]}
                             </div>
-                            <span className="font-medium text-gray-800">
+                            <span className="font-medium text-gray-800 whitespace-nowrap">
                               {lead.name}
                             </span>
                           </div>
@@ -407,6 +448,24 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
                           <span className="font-semibold text-green-600">
                             ₹{lead.dealValue}
                           </span>
+                        ) : column.key === "access" ? (
+                          <div className="flex flex-wrap gap-1 max-w-55">
+                            {(Array.isArray(lead.access)
+                              ? lead.access
+                              : String(lead.access).split(",")
+                            ).map((item) => (
+                              <span
+                                key={item}
+                                className="px-2 py-1 text-xs rounded-full bg-primary-50 text-primary-700"
+                              >
+                                {item.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        ) : column.key === "createdAt" ? (
+                          formatDate(lead.createdAt)
+                        ) : column.key === "lastLogin" ? (
+                          formatDate(lead.lastLogin)
                         ) : (
                           lead[column.key] || "-"
                         )}
@@ -446,7 +505,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
                             setDeleteLeadId(lead.id);
                             setDeleteModal(true);
                           }}
-                          className="flex h-8 w-8 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer"
+                          className="flex h-8 w-8 mr-4 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer"
                         >
                           <HugeiconsIcon
                             icon={Delete02Icon}
@@ -483,6 +542,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
         dispatch={dispatch}
         fields={fields}
         addAction={actions.add}
+        triggerNotification={triggerNotification}
       />
       <EditModal
         isOpen={editModal}
@@ -491,6 +551,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
         dispatch={dispatch}
         fields={fields}
         updateAction={actions.update}
+        triggerNotification={triggerNotification}
       />
       <DeleteModal
         isOpen={deleteModal}
@@ -498,6 +559,7 @@ const Tabel = ({ data, title, subtitle, tableHead, fields, module }) => {
         deleteLeadId={deleteLeadId}
         dispatch={dispatch}
         deleteAction={actions.remove}
+        triggerNotification={triggerNotification}
       />
       <ViewModal
         isOpen={viewModal}

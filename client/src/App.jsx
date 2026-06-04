@@ -9,14 +9,18 @@ import dashboardData from "./data/dashboardData.json";
 import leadsData from "./data/leadsData.json";
 import contactData from "./data/contactData.json";
 import activityData from "./data/activityData.json";
+import userData from "./data/userData.json";
+import notificationsData from "./data/notificationsData.json";
 
-// Reux
+// Redux
 import { useDispatch } from "react-redux";
 import {
   dashboardModuleData,
   leadModuleData,
   contactModuleData,
   activityModuleData,
+  userModuleData,
+  notificationModuleData,
 } from "./redux/actions/modulesAction";
 
 // Routing
@@ -29,6 +33,8 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Lead = lazy(() => import("./pages/Lead"));
 const Contacts = lazy(() => import("./pages/Contacts"));
 const Activity = lazy(() => import("./pages/Activity"));
+const Users = lazy(() => import("./pages/Users"));
+const Notification = lazy(() => import("./pages/Notification"));
 
 const App = () => {
   const dispatch = useDispatch();
@@ -38,6 +44,8 @@ const App = () => {
     dispatch(leadModuleData(leadsData));
     dispatch(contactModuleData(contactData));
     dispatch(activityModuleData(activityData));
+    dispatch(userModuleData(userData));
+    dispatch(notificationModuleData(notificationsData));
   }, [dispatch]);
 
   return (
@@ -51,10 +59,15 @@ const App = () => {
 
             {/* Private Routes */}
             <Route element={<ProtectedRoutes />}>
+              {/* Modules */}
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/lead" element={<Lead />} />
               <Route path="/contacts" element={<Contacts />} />
               <Route path="/activity" element={<Activity />} />
+              <Route path="/users" element={<Users />} />
+
+              {/* Notification */}
+              <Route path="/notification" element={<Notification />} />
             </Route>
           </Routes>
         </Suspense>

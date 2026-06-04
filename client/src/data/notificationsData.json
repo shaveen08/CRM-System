@@ -1,0 +1,82 @@
+[
+  {
+    "id": 1,
+    "title": "New Lead Assigned",
+    "message": "Arun Kumar has been assigned to you for follow-up.",
+    "type": "lead",
+    "isRead": false,
+    "createdAt": "2026-06-04T09:00:00"
+  },
+  {
+    "id": 2,
+    "title": "Deal Closed Successfully",
+    "message": "The CRM Software Subscription deal worth ₹40,000 has been marked as completed.",
+    "type": "deal",
+    "isRead": false,
+    "createdAt": "2026-06-04T08:45:00"
+  },
+  {
+    "id": 3,
+    "title": "Follow-up Reminder",
+    "message": "Contact Priya Sharma today regarding the product demo.",
+    "type": "reminder",
+    "isRead": true,
+    "createdAt": "2026-06-04T08:15:00"
+  },
+  {
+    "id": 4,
+    "title": "Lead Status Updated",
+    "message": "Rahul Verma's status has been changed from Pending to Qualified.",
+    "type": "lead",
+    "isRead": false,
+    "createdAt": "2026-06-03T17:30:00"
+  },
+  {
+    "id": 5,
+    "title": "New Appointment Scheduled",
+    "message": "A meeting with TechNova Solutions has been scheduled for tomorrow at 11:00 AM.",
+    "type": "appointment",
+    "isRead": false,
+    "createdAt": "2026-06-03T15:20:00"
+  },
+  {
+    "id": 6,
+    "title": "Deal Value Increased",
+    "message": "The website redesign project value has been updated to ₹75,000.",
+    "type": "deal",
+    "isRead": true,
+    "createdAt": "2026-06-03T14:10:00"
+  },
+  {
+    "id": 7,
+    "title": "Lead Added",
+    "message": "A new lead, Sneha Reddy, has been added from the company website.",
+    "type": "lead",
+    "isRead": false,
+    "createdAt": "2026-06-03T12:45:00"
+  },
+  {
+    "id": 8,
+    "title": "Task Completed",
+    "message": "Product demonstration task for ABC Technologies has been completed.",
+    "type": "activity",
+    "isRead": true,
+    "createdAt": "2026-06-03T11:30:00"
+  },
+  {
+    "id": 9,
+    "title": "Overdue Follow-up",
+    "message": "The follow-up for Rajesh Enterprises is overdue by 2 days.",
+    "type": "warning",
+    "isRead": false,
+    "createdAt": "2026-06-03T10:15:00"
+  },
+  {
+    "id": 10,
+    "title": "Monthly Target Achieved",
+    "message": "Congratulations! Your team has achieved 102% of this month's sales target.",
+    "type": "success",
+    "isRead": false,
+    "createdAt": "2026-06-03T09:00:00"
+  }
+]

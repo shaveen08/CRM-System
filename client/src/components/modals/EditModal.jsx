@@ -9,6 +9,7 @@ const EditModal = ({
   dispatch,
   fields,
   updateAction,
+  triggerNotification,
 }) => {
   const [formData, setFormData] = useState(null);
   const modalRef = useRef();
@@ -25,6 +26,11 @@ const EditModal = ({
   const handleSubmit = (e) => {
     e.preventDefault();
     dispatch(updateAction(formData));
+    triggerNotification({
+      type: "info",
+      message: "Record updated successfully!",
+      duration: 3000,
+    });
     onClose();
   };
 
