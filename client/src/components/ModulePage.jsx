@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import Tabel from "../components/Tabel";
 import useNotification from "../utils/useNotification";
 
-const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
+const ModulePage = ({ selector, dataKey, title, subtitle, fields, module, filter }) => {
   const customerData = useSelector(selector) || {};
   const data = customerData?.[dataKey] || [];
 
@@ -30,7 +30,7 @@ const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
 
   const { triggerNotification, NotificationComponent } =
     useNotification("top-right");
-
+    
   return (
     <div className="flex h-screen w-full">
       {NotificationComponent}
@@ -48,6 +48,7 @@ const ModulePage = ({ selector, dataKey, title, subtitle, fields, module }) => {
             fields={fields}
             module={module}
             triggerNotification={triggerNotification}
+            filter={filter}
           />
         </div>
       </div>

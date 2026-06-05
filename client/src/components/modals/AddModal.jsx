@@ -55,6 +55,7 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerN
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
       <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 bg-primary-50 p-4">
           <div>
             <h4 className="text-base font-semibold text-gray-800">
@@ -72,6 +73,7 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerN
           </div>
         </div>
 
+        {/* Form */}
         <div className="p-4">
           <form
             onSubmit={handleSubmit}
@@ -107,6 +109,8 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerN
                 />
               ),
             )}
+
+            {/*  Actions */}
             <div className="md:col-span-2 flex justify-end gap-3">
               <button
                 type="button"

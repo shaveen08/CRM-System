@@ -19,6 +19,7 @@ const leadFields = [
   },
   { name: "dealValue", label: "Deal Value", type: "number" },
 ];
+const STATUS_OPTIONS = ["Completed", "Pending", "Dropped"];
 
 const Lead = () => {
   return (
@@ -30,6 +31,7 @@ const Lead = () => {
         title="Customer Leads"
         subtitle="Most recent leads data"
         fields={leadFields}
+        filter={STATUS_OPTIONS}
       />
     </>
   );

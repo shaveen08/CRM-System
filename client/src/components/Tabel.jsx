@@ -17,10 +17,15 @@ import {
   updateUser,
   deleteUser,
   deleteMultipleUsers,
+  newAppointment,
+  updateAppointment,
+  deleteAppointment,
+  deleteMultipleAppointment,
 } from "../redux/actions/modulesAction";
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
+  Cancel01Icon,
   Delete02Icon,
   Filter,
   PencilEdit01Icon,
@@ -36,8 +41,7 @@ import EditModal from "./modals/EditModal";
 import DeleteModal from "./modals/DeleteModal";
 import ViewModal from "./modals/ViewModal";
 import UploadModal from "./modals/UploadModal";
-
-const STATUS_OPTIONS = ["Completed", "Pending", "Dropped"];
+import FilterModal from "./modals/FilterModal";
 
 const ACTION_MAP = {
   lead: {
@@ -58,6 +62,12 @@ const ACTION_MAP = {
     remove: deleteActivity,
     bulkRemove: deleteMultipleActivities,
   },
+  appointment: {
+    add: newAppointment,
+    update: updateAppointment,
+    remove: deleteAppointment,
+    bulkRemove: deleteMultipleAppointment,
+  },
   user: {
     add: newUser,
     update: updateUser,
@@ -74,6 +84,7 @@ const Tabel = ({
   fields,
   module,
   triggerNotification,
+  filter,
 }) => {
   const dispatch = useDispatch();
 
@@ -123,17 +134,9 @@ const Tabel = ({
     return () => clearTimeout(timer);
   }, [debouncedSearchText]);
 
+  // Filter Modal
   const [filterModal, setFilterModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState([]);
-
-  const handleSelectedFilter = (e, filterName) => {
-    e.preventDefault();
-    setSelectedFilter((prev) =>
-      prev.includes(filterName)
-        ? prev.filter((item) => item !== filterName)
-        : [...prev, filterName],
-    );
-  };
 
   const filteredLeads = useMemo(() => {
     return [...data]
@@ -260,45 +263,12 @@ const Tabel = ({
               </button>
 
               {filterModal && (
-                <div className="absolute right-0 top-11 z-50 w-52 rounded-xl border border-gray-100 bg-white shadow-xl shadow-gray-200 p-3">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                      Filter by Status
-                    </p>
-                    {selectedFilter.length > 0 && (
-                      <button
-                        onClick={() => setSelectedFilter([])}
-                        className="text-xs text-primary-700 hover:underline"
-                      >
-                        Clear
-                      </button>
-                    )}
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    {STATUS_OPTIONS.map((status) => (
-                      <button
-                        key={status}
-                        onClick={(e) => handleSelectedFilter(e, status)}
-                        className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition ${
-                          selectedFilter.includes(status)
-                            ? "bg-primary-100 text-primary-700 font-medium"
-                            : "hover:bg-gray-50 text-gray-600"
-                        }`}
-                      >
-                        {status}
-                        {selectedFilter.includes(status) && (
-                          <span className="h-2 w-2 rounded-full bg-primary-700" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
-                  <button
-                    onClick={() => setFilterModal(false)}
-                    className="mt-3 w-full rounded-lg bg-primary-700 py-1.5 text-xs font-medium text-white hover:bg-primary-800"
-                  >
-                    Apply
-                  </button>
-                </div>
+                <FilterModal
+                  filter={filter}
+                  selectedFilter={selectedFilter}
+                  setSelectedFilter={setSelectedFilter}
+                  onClose={() => setFilterModal(false)}
+                />
               )}
             </div>
 

@@ -3,120 +3,106 @@
     "id": 1,
     "name": "John Carter",
     "email": "john.carter@crm.com",
-    "phone": "9876543210",
-    "department": "Sales",
+    "password": "John@123",
     "role": "Admin",
     "status": "Active",
-    "access": ["Dashboard", "Leads", "Contacts", "Deals", "Activities", "Appointments", "Settings", "Users"],
-    "lastLogin": "2026-05-29 09:15 AM",
-    "createdAt": "2025-01-10"
+    "access": [
+      "Dashboard",
+      "Leads",
+      "Contacts",
+      "Deals",
+      "Activities",
+      "Appointments",
+      "Settings",
+      "Users"
+    ]
   },
   {
     "id": 2,
     "name": "Sarah Wilson",
     "email": "sarah.wilson@crm.com",
-    "phone": "9876543211",
-    "department": "Sales",
+    "password": "Sarah@123",
     "role": "Sales Manager",
     "status": "Active",
-    "access": ["Dashboard", "Leads", "Contacts", "Deals", "Activities", "Appointments"],
-    "lastLogin": "2026-05-29 10:42 AM",
-    "createdAt": "2025-02-15"
+    "access": [
+      "Dashboard",
+      "Leads",
+      "Contacts",
+      "Deals",
+      "Activities",
+      "Appointments"
+    ]
   },
   {
     "id": 3,
     "name": "Michael Brown",
     "email": "michael.brown@crm.com",
-    "phone": "9876543212",
-    "department": "Sales",
+    "password": "Michael@123",
     "role": "Sales Executive",
     "status": "Active",
-    "access": ["Dashboard", "Leads", "Contacts", "Activities"],
-    "lastLogin": "2026-05-28 05:12 PM",
-    "createdAt": "2025-03-08"
+    "access": ["Dashboard", "Leads", "Contacts", "Activities"]
   },
   {
     "id": 4,
     "name": "Emily Davis",
     "email": "emily.davis@crm.com",
-    "phone": "9876543213",
-    "department": "Marketing",
+    "password": "Emily@123",
     "role": "Marketing Manager",
     "status": "Active",
-    "access": ["Dashboard", "Leads", "Activities"],
-    "lastLogin": "2026-05-29 11:30 AM",
-    "createdAt": "2025-01-20"
+    "access": ["Dashboard", "Leads", "Activities"]
   },
   {
     "id": 5,
     "name": "David Lee",
     "email": "david.lee@crm.com",
-    "phone": "9876543214",
-    "department": "Support",
+    "password": "David@123",
     "role": "Support Agent",
     "status": "Inactive",
-    "access": ["Dashboard", "Contacts"],
-    "lastLogin": "2026-05-20 03:45 PM",
-    "createdAt": "2025-04-05"
+    "access": ["Dashboard", "Contacts"]
   },
   {
     "id": 6,
     "name": "Sophia Martin",
     "email": "sophia.martin@crm.com",
-    "phone": "9876543215",
-    "department": "HR",
+    "password": "Sophia@123",
     "role": "HR Manager",
     "status": "Active",
-    "access": ["Dashboard", "Users"],
-    "lastLogin": "2026-05-28 08:10 AM",
-    "createdAt": "2025-02-28"
+    "access": ["Dashboard", "Users"]
   },
   {
     "id": 7,
     "name": "Daniel Clark",
     "email": "daniel.clark@crm.com",
-    "phone": "9876543216",
-    "department": "Sales",
+    "password": "Daniel@123",
     "role": "Sales Executive",
     "status": "Active",
-    "access": ["Dashboard", "Leads", "Contacts"],
-    "lastLogin": "2026-05-29 02:15 PM",
-    "createdAt": "2025-03-12"
+    "access": ["Dashboard", "Leads", "Contacts"]
   },
   {
     "id": 8,
     "name": "Olivia Harris",
     "email": "olivia.harris@crm.com",
-    "phone": "9876543217",
-    "department": "Finance",
+    "password": "Olivia@123",
     "role": "Accountant",
     "status": "Active",
-    "access": ["Dashboard"],
-    "lastLogin": "2026-05-27 04:55 PM",
-    "createdAt": "2025-04-10"
+    "access": ["Dashboard"]
   },
   {
     "id": 9,
     "name": "James Walker",
     "email": "james.walker@crm.com",
-    "phone": "9876543218",
-    "department": "Support",
+    "password": "James@123",
     "role": "Support Manager",
     "status": "Active",
-    "access": ["Dashboard", "Contacts", "Activities", "Appointments"],
-    "lastLogin": "2026-05-29 12:40 PM",
-    "createdAt": "2025-01-30"
+    "access": ["Dashboard", "Contacts", "Activities", "Appointments"]
   },
   {
     "id": 10,
-    "name": "Emma Thompson",
-    "email": "emma.thompson@crm.com",
-    "phone": "9876543219",
-    "department": "Management",
+    "name": "Shaveen Kumar",
+    "email": "shaveen@crm.com",
+    "password": "Shaveen@123",
     "role": "Super Admin",
     "status": "Active",
-    "access": ["All Modules"],
-    "lastLogin": "2026-05-29 08:00 AM",
-    "createdAt": "2024-12-01"
+    "access": ["All Modules"]
   }
 ]

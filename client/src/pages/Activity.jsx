@@ -16,6 +16,8 @@ const activityFields = [
   { name: "notes", label: "Notes", type: "text" },
 ];
 
+const STATUS_OPTION = ["Interested", "Replied", "Positive", "Negative"]
+
 const Activity = () => {
   return (
     <>
@@ -26,6 +28,7 @@ const Activity = () => {
         title="Customer Activity"
         subtitle="Most recent activity"
         fields={activityFields}
+        filter={STATUS_OPTION}
       />
     </>
   );

@@ -3,13 +3,7 @@ import ModulePage from "../components/ModulePage";
 const usersField = [
   { name: "name", label: "Name", type: "text" },
   { name: "email", label: "Email", type: "email" },
-  { name: "phone", label: "Phone", type: "tele" },
-  {
-    name: "department",
-    label: "Department",
-    type: "select",
-    options: ["Sales", "Finance", "HR", "Support", "Management", "Marketing"],
-  },
+  { name: "password", label: "Password", type: "password" },
   {
     name: "role",
     label: "Role",

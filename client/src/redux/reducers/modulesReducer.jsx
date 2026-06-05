@@ -3,6 +3,7 @@ const initialState = {
   leadsData: [],
   contactData: [],
   activityData: [],
+  appointmentData: [],
   userData: [],
   notificationData: [],
 };
@@ -17,10 +18,12 @@ const modulesReducer = (state = initialState, action) => {
       return { ...state, contactData: action.payload };
     case "ACTIVITY_DATA":
       return { ...state, activityData: action.payload };
+    case "APPOINTMENT_DATA":
+      return { ...state, appointmentData: action.payload };
     case "USER_DATA":
       return { ...state, userData: action.payload };
 
-    // Notification
+    // Notification  ---------------------------------------------------------------------------------------------------- /
     case "NOTIFICATION_DATA":
       return { ...state, notificationData: action.payload };
 
@@ -32,7 +35,7 @@ const modulesReducer = (state = initialState, action) => {
         ),
       };
 
-    // Lead
+    // Lead  --------------------------------------------------------------------------------------------------------- /
     case "NEW_LEAD":
       return { ...state, leadsData: [...state.leadsData, action.payload] };
     case "UPDATE_LEAD":
@@ -51,11 +54,11 @@ const modulesReducer = (state = initialState, action) => {
       return {
         ...state,
         leadsData: state.leadsData.filter(
-          (item) => !action.payload.includes(item.id),
+          (item) => !action.payload.map(Number).includes(Number(item.id)),
         ),
       };
 
-    // Contact
+    // Contact  ------------------------------------------------------------------------------------------------------- /
     case "NEW_CONTACT":
       return { ...state, contactData: [...state.contactData, action.payload] };
     case "UPDATE_CONTACT":
@@ -76,11 +79,11 @@ const modulesReducer = (state = initialState, action) => {
       return {
         ...state,
         contactData: state.contactData.filter(
-          (item) => !action.payload.includes(item.id),
+          (item) => !action.payload.map(Number).includes(Number(item.id)),
         ),
       };
 
-    // Activity
+    // Activity  --------------------------------------------------------------------------------------------------------- /
     case "NEW_ACTIVITY":
       return {
         ...state,
@@ -104,11 +107,41 @@ const modulesReducer = (state = initialState, action) => {
       return {
         ...state,
         activityData: state.activityData.filter(
-          (item) => !action.payload.includes(item.id),
+          (item) => !action.payload.map(Number).includes(Number(item.id)),
         ),
       };
 
-    // User
+    // Appointment ---------------------------------------------------------------------------------------------------- /
+    case "NEW_APPOINTMENT":
+      return {
+        ...state,
+        appointmentData: [...state.appointmentData, action.payload],
+      };
+
+    case "UPDATE_APPOINTMENT":
+      return {
+        ...state,
+        appointmentData: state.appointmentData.map((item) =>
+          item.id === action.payload.id ? action.payload : item,
+        ),
+      };
+
+    case "DELETE_APPOINTMENT":
+      return {
+        ...state,
+        appointmentData: state.appointmentData.filter(
+          (item) => item.id !== action.payload,
+        ),
+      };
+
+    case "DELETE_MULTIPLE_APPOINTMENT":
+      return {
+        ...state,
+        appointmentData: state.appointmentData.filter(
+          (item) => !action.payload.map(Number).includes(Number(item.id)),
+        ),
+      };
+    // User  ---------------------------------------------------------------------------------------------------------- /
     case "NEW_USER":
       return {
         ...state,
@@ -133,7 +166,7 @@ const modulesReducer = (state = initialState, action) => {
       return {
         ...state,
         userData: state.userData.filter(
-          (item) => !action.payload.includes(item.id),
+          (item) => !action.payload.map(Number).includes(Number(item.id)),
         ),
       };
 

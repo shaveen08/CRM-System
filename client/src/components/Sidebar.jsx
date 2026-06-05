@@ -8,6 +8,7 @@ import {
   CheckListIcon,
   UserIcon,
   ContactIcon,
+  Calendar03Icon,
 } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
@@ -41,6 +42,12 @@ const Sidebar = () => {
     },
     {
       id: 5,
+      menuName: "Appointment",
+      path: "/appointment",
+      icon: <HugeiconsIcon icon={Calendar03Icon} size={20} />,
+    },
+    {
+      id: 6,
       menuName: "Users",
       path: "/users",
       icon: <HugeiconsIcon icon={UserIcon} size={20} />,

@@ -19,12 +19,17 @@ export const activityModuleData = (data) => ({
   payload: data,
 });
 
+export const appointmentModuleData = (data) => ({
+  type: "APPOINTMENT_DATA",
+  payload: data,
+});
+
 export const userModuleData = (data) => ({
   type: "USER_DATA",
   payload: data,
 });
 
-// Notification
+// Notification -------------------------------------------------------------------------------------------------------- /
 export const notificationModuleData = (data) => ({
   type: "NOTIFICATION_DATA",
   payload: data,
@@ -35,7 +40,7 @@ export const markNotificationRead = (id) => ({
   payload: id,
 });
 
-// Lead
+// Lead  ------------------------------------------------------------------------------------------------------------- /
 export const newLead = (data) => ({ 
   type: "NEW_LEAD", 
   payload: data 
@@ -55,7 +60,7 @@ export const deleteMultipleLeads = (ids) => ({
   payload: ids,
 });
 
-// Contact
+// Contact  ------------------------------------------------------------------------------------------------------------ /
 export const newContact = (data) => ({ 
   type: "NEW_CONTACT", 
   payload: data 
@@ -76,7 +81,7 @@ export const deleteMultipleContacts = (ids) => ({
   payload: ids,
 });
 
-// Activity
+// Activity  ---------------------------------------------------------------------------------------------------------- /
 export const newActivity = (data) => ({ 
   type: "NEW_ACTIVITY", 
   payload: data 
@@ -97,7 +102,28 @@ export const deleteMultipleActivities = (ids) => ({
   payload: ids,
 });
 
-// User
+// Appointment  ------------------------------------------------------------------------------------------------------- /
+export const newAppointment = (data) => ({
+  type: "NEW_APPOINTMENT",
+  payload: data,
+});
+
+export const updateAppointment = (data) => ({
+  type: "UPDATE_APPOINTMENT",
+  payload: data,
+});
+
+export const deleteAppointment = (id) => ({
+  type: "DELETE_APPOINTMENT",
+  payload: id,
+});
+
+export const deleteMultipleAppointment = (ids) => ({
+  type: "DELETE_MULTIPLE_APPOINTMENT",
+  payload: ids,
+});
+
+// User  -------------------------------------------------------------------------------------------------------------- /
 export const newUser = (data) => ({
   type: "NEW_USER",
   payload: data,

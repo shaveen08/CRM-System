@@ -8,12 +8,15 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import { useNavigate, Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 const Login = () => {
   const [error, setError] = useState({});
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
+
+  const userData = useSelector((state) => state.modules.userData || []);
 
   const validate = (values) => {
     const errors = {};
@@ -28,8 +31,8 @@ const Login = () => {
 
     if (!values.password) {
       errors.password = "Field cannot be blank.";
-    } else if (values.password.length < 8 || values.password.length > 14) {
-      errors.password = "Password must contain 8 to 14 characters";
+    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(values.password)) {
+      errors.password = "Password must be 8+ characters and include uppercase, lowercase, number, and special character.";
     }
 
     return errors;
@@ -44,31 +47,41 @@ const Login = () => {
     onSubmit: (values, { resetForm }) => {
       try {
         setLoading(true);
-        const data = localStorage.getItem("registeredData");
-        const registeredUser = data ? JSON.parse(data) : null;
 
-        if (!registeredUser) {
-          setError({ auth: "No user found. Please register first." });
+        const user = userData.find(
+          (item) =>
+            item.email.toLowerCase() === values.email.toLowerCase() &&
+            item.password === values.password,
+        );
+
+        if (!user) {
+          setError({
+            auth: "Invalid Email or Password",
+          });
           return;
         }
 
-        if (
-          values.email !== registeredUser.email ||
-          values.password !== registeredUser.password
-        ) {
-          setError({ auth: "Invalid Email or Password" });
+        if (user.status !== "Active") {
+          setError({
+            auth: "Your account has been deactivated. Contact administrator.",
+          });
           return;
         }
 
-        // Success
-        localStorage.setItem("loggedUser", JSON.stringify(values));
+        localStorage.setItem("loggedUser", JSON.stringify(user));
+
         setError({});
         resetForm();
-        navigate("/dashboard")
 
-        console.log("Login Successful");
+        navigate("/dashboard");
+
+        console.log("Login Successful:", user);
       } catch (err) {
-        setError({ auth: "Something went wrong. Try again." });
+        console.error(err);
+
+        setError({
+          auth: "Something went wrong. Try again.",
+        });
       } finally {
         setLoading(false);
       }
@@ -165,19 +178,6 @@ const Login = () => {
             )}
           </div>
 
-          <div className=" flex justify-between ">
-            {/* Remember me */}
-            <div className="flex items-center gap-1 text-gray-500 cursor-pointer text-[14px]">
-              <input type="checkbox" name="rememberMe" id="remember-me" />
-              <label htmlFor="remember-me">Remember me</label>
-            </div>
-
-            {/* Forget password */}
-            <div className="text-gray-500 cursor-pointer text-[14px]">
-              <Link to="">Forget Password?</Link>
-            </div>
-          </div>
-
           {/* Button */}
           <button
             type="submit"
@@ -195,40 +195,7 @@ const Login = () => {
             )}
             {loading ? "Logging in..." : "Log in"}
           </button>
-
-          {/* Divider */}
-          <div className="flex items-center gap-2 my-4 text-sm text-gray-300">
-            <div className="flex-1 border"></div>
-            <p className="text-gray-400">Or Continue With</p>
-            <div className="flex-1 border"></div>
-          </div>
-
-          {/* Social */}
-          <div className="flex gap-2">
-            <button
-              type="button"
-              className="w-full h-11 flex items-center justify-center gap-2 border border-gray-300 text-[14px] font-medium rounded-lg bg-gray-50 cursor-pointer hover:shadow-lg hover:bg-gray-100 active:bg-gray-50 transition"
-            >
-              <img src={googleIcon} alt="goole icon" />
-              Google
-            </button>
-            <button
-              type="button"
-              className="w-full h-11 flex items-center justify-center gap-2 border border-gray-300 text-[14px] font-medium rounded-lg bg-gray-50 cursor-pointer hover:shadow-lg hover:bg-gray-100 active:bg-gray-50 transition"
-            >
-              <img src={appleIcon} alt="apple icon" />
-              Apple
-            </button>
-          </div>
         </form>
-
-        {/* Register */}
-        <p className="text-center text-sm mt-3">
-          Don't have an account?{" "}
-          <Link to="/register" className="text-primary-700 font-medium">
-            Register
-          </Link>
-        </p>
       </div>
     </main>
   );

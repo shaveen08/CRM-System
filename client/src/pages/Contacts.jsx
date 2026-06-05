@@ -15,6 +15,8 @@ const contactFields = [
   },
 ];
 
+const STATUS_OPTIONS = ["Active", "Inactive", "Blocked"];
+
 const Contacts = () => {
   return (
     <>
@@ -25,6 +27,7 @@ const Contacts = () => {
         title="Customer Contacts"
         subtitle="All saved customer contacts"
         fields={contactFields}
+        filter={STATUS_OPTIONS}
       />
     </>
   );
