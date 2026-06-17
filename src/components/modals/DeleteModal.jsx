@@ -2,7 +2,8 @@ import React, { useRef } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
 import useNotification from "../../utils/useNotification";
-
+import axios from "axios";
+const API_URL = "http://localhost:3000";
 const DeleteModal = ({
   isOpen,
   onClose,
@@ -13,14 +14,37 @@ const DeleteModal = ({
 }) => {
   const modalRef = useRef();
 
-  const handleConfirmDelete = () => {
-    dispatch(deleteAction(deleteLeadId));
-    triggerNotification({
-      type: "warning",
-      message: "Record deleted successfully!",
-      duration: 3000,
-    });
-    onClose();
+  const handleConfirmDelete = async () => {
+    try {
+      // const response = await axios.delete(`${API_URL}/lead/${deleteLeadId}`);
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/posts/${deleteLeadId}`,
+        {
+          method: "DELETE",
+        },
+      );
+
+      const data = await response.json();
+      console.log(data);
+
+      dispatch(deleteAction(deleteLeadId));
+
+      triggerNotification({
+        type: "warning",
+        message: "Record deleted successfully!",
+        duration: 3000,
+      });
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+
+      triggerNotification({
+        type: "error",
+        message: "Failed to delete record",
+        duration: 3000,
+      });
+    }
   };
 
   if (!isOpen) return null;

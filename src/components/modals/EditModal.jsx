@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
+import axios from "axios";
+
+const API_URL = "http://localhost:3000";
 
 const EditModal = ({
   isOpen,
@@ -23,14 +26,29 @@ const EditModal = ({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    dispatch(updateAction(formData));
-    triggerNotification({
-      type: "info",
-      message: "Record updated successfully!",
-      duration: 3000,
-    });
+
+    try {
+      // const response = await axios.put(`${API_URL}/editlead/${formData.id}`, formData);
+      const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${formData.id}`, {
+        method: "PUT",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(formData)
+      });
+
+      const data = await response.json();
+      console.log(data);
+
+      dispatch(updateAction(formData));
+      triggerNotification({
+        type: "info",
+        message: "Record updated successfully!",
+        duration: 3000,
+      });
+    } catch (err) {
+      console.error(err);
+    }
     onClose();
   };
 

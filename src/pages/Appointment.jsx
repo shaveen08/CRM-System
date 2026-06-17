@@ -1,6 +1,10 @@
 import React from "react";
 import ModulePage from "../components/ModulePage";
-import { useSelector } from "react-redux";
+import { useEffect } from "react";
+
+// import appointmentData from "../data/appointmentsData.json";
+// import { appointmentModuleData } from "../redux/actions/modulesAction";
+// import { useDispatch } from "react-redux";
 
 const Appointment = () => {
   const appointmentFields = [
@@ -14,10 +18,21 @@ const Appointment = () => {
       type: "select",
       options: ["Zoom Meeting", "Google Meet", "Client Office"],
     },
-    { name: "status", label: "Status", type: "select", options: ["Scheduled", "Completed"] },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: ["Scheduled", "Completed"],
+    },
   ];
 
   const STATUS_OPTIONS = ["Scheduled", "Completed"];
+
+  // const dispatch = useDispatch();
+
+  // useEffect(() => {
+  //   dispatch(appointmentModuleData(appointmentData));
+  // }, [dispatch]);
 
   return (
     <>

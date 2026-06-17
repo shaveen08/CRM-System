@@ -5,6 +5,7 @@
     "email": "john.carter@crm.com",
     "password": "John@123",
     "role": "Admin",
+    "department": "Management",
     "status": "Active",
     "access": [
       "Dashboard",
@@ -23,6 +24,7 @@
     "email": "sarah.wilson@crm.com",
     "password": "Sarah@123",
     "role": "Sales Manager",
+    "department": "Sales",
     "status": "Active",
     "access": [
       "Dashboard",
@@ -39,6 +41,7 @@
     "email": "michael.brown@crm.com",
     "password": "Michael@123",
     "role": "Sales Executive",
+    "department": "Sales",
     "status": "Active",
     "access": ["Dashboard", "Leads", "Contacts", "Activities"]
   },
@@ -48,6 +51,7 @@
     "email": "emily.davis@crm.com",
     "password": "Emily@123",
     "role": "Marketing Manager",
+    "department": "Marketing",
     "status": "Active",
     "access": ["Dashboard", "Leads", "Activities"]
   },
@@ -57,6 +61,7 @@
     "email": "david.lee@crm.com",
     "password": "David@123",
     "role": "Support Agent",
+    "department": "Support",
     "status": "Inactive",
     "access": ["Dashboard", "Contacts"]
   },
@@ -66,6 +71,7 @@
     "email": "sophia.martin@crm.com",
     "password": "Sophia@123",
     "role": "HR Manager",
+    "department": "Human Resources",
     "status": "Active",
     "access": ["Dashboard", "Users"]
   },
@@ -75,6 +81,7 @@
     "email": "daniel.clark@crm.com",
     "password": "Daniel@123",
     "role": "Sales Executive",
+    "department": "Sales",
     "status": "Active",
     "access": ["Dashboard", "Leads", "Contacts"]
   },
@@ -84,6 +91,7 @@
     "email": "olivia.harris@crm.com",
     "password": "Olivia@123",
     "role": "Accountant",
+    "department": "Finance",
     "status": "Active",
     "access": ["Dashboard"]
   },
@@ -93,6 +101,7 @@
     "email": "james.walker@crm.com",
     "password": "James@123",
     "role": "Support Manager",
+    "department": "Support",
     "status": "Active",
     "access": ["Dashboard", "Contacts", "Activities", "Appointments"]
   },
@@ -102,6 +111,7 @@
     "email": "shaveen@crm.com",
     "password": "Shaveen@123",
     "role": "Super Admin",
+    "department": "Management",
     "status": "Active",
     "access": ["All Modules"]
   }

@@ -8,7 +8,7 @@ import Navbar from "../components/Navbar";
 import Tabel from "../components/Tabel";
 import useNotification from "../utils/useNotification";
 
-const ModulePage = ({ selector, dataKey, title, subtitle, fields, module, filter }) => {
+const ModulePage = ({ selector, dataKey, title, subtitle, fields, module, filter, apiData }) => {
   const customerData = useSelector(selector) || {};
   const data = customerData?.[dataKey] || [];
 

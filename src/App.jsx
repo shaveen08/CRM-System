@@ -1,9 +1,6 @@
 import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-// Loader
-import Skeleton from "./components/skeleton/Skeleton";
-
 // JSON Data
 import dashboardData from "./data/dashboardData.json";
 import leadsData from "./data/leadsData.json";
@@ -13,7 +10,7 @@ import appointmentData from "./data/appointmentsData.json";
 import userData from "./data/userData.json";
 import notificationsData from "./data/notificationsData.json";
 
-// Redux
+// // Redux
 import { useDispatch } from "react-redux";
 import {
   dashboardModuleData,
@@ -38,6 +35,7 @@ const Activity = lazy(() => import("./pages/Activity"));
 const Appointment = lazy(() => import("./pages/Appointment"));
 const Users = lazy(() => import("./pages/Users"));
 const Notification = lazy(() => import("./pages/Notification"));
+const UserCreate = lazy(() => import("./components/UserCreate"));
 
 const App = () => {
   const dispatch = useDispatch();
@@ -70,6 +68,9 @@ const App = () => {
               <Route path="/activity" element={<Activity />} />
               <Route path="/appointment" element={<Appointment />} />
               <Route path="/users" element={<Users />} />
+
+              {/* Modal */}
+              {/* <Route path="/users/create" element={<UserCreate />} /> */}
 
               {/* Notification */}
               <Route path="/notification" element={<Notification />} />

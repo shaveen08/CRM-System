@@ -1,9 +1,20 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import useNotification from "../../utils/useNotification";
+import axios from "axios";
 
-const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerNotification, }) => {
+const API_URL = "http://localhost:3000";
+
+const AddModal = ({
+  isOpen,
+  onClose,
+  data,
+  dispatch,
+  fields,
+  addAction,
+  triggerNotification,
+}) => {
   const getNextId = () => (data.length > 0 ? data[data.length - 1].id + 1 : 1);
 
   const getInitialForm = () => ({
@@ -14,34 +25,63 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerN
   const [formData, setFormData] = useState(getInitialForm);
   const modalRef = useRef();
 
-  React.useEffect(() => {
-    if (isOpen) setFormData(getInitialForm());
-  }, [isOpen]);
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(getInitialForm());
+    }
+  }, [isOpen, data]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+
     const createdDate = new Date().toISOString().split("T")[0];
-    dispatch(
-      addAction({
-        ...formData,
-        createdAt: createdDate,
-        ...(fields.some((f) => f.name === "lastContacted") && {
-          lastContacted: createdDate,
-        }),
+
+    const leadData = {
+      ...formData,
+      createdAt: createdDate,
+      ...(fields.some((f) => f.name === "lastContacted") && {
+        lastContacted: createdDate,
       }),
-    );
-    setFormData(getInitialForm());
-    triggerNotification({
-      type: "success",
-      message: "Record added successfully!",
-      duration: 3000,
-    });
-    onClose();
+    };
+
+    console.log(leadData);
+    
+    try {
+      // const response = await axios.post(`${API_URL}/lead/create`, leadData);
+      const response = await fetch(`https://jsonplaceholder.typicode.com/posts`, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(leadData),
+      })
+
+      const data = await response.json();
+      console.log("Response from mock API:", data);
+
+      dispatch(addAction(leadData));
+
+      setFormData(getInitialForm());
+
+      triggerNotification({
+        type: "success",
+        message: "Record added successfully!",
+        duration: 3000,
+      });
+
+      onClose();
+    } catch (err) {
+      console.error(err);
+
+      triggerNotification({
+        type: "error",
+        message: "Failed to add record",
+        duration: 3000,
+      });
+    }
   };
 
   if (!isOpen) return null;
@@ -58,7 +98,7 @@ const AddModal = ({ isOpen, onClose, data, dispatch, fields, addAction, triggerN
         {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 bg-primary-50 p-4">
           <div>
-            <h4 className="text-base font-semibold text-gray-800">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-800">
               Add Record
             </h4>
             <p className="text-sm text-gray-500">

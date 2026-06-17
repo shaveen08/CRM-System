@@ -25,7 +25,6 @@ import {
 
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
-  Cancel01Icon,
   Delete02Icon,
   Filter,
   PencilEdit01Icon,
@@ -42,6 +41,8 @@ import DeleteModal from "./modals/DeleteModal";
 import ViewModal from "./modals/ViewModal";
 import UploadModal from "./modals/UploadModal";
 import FilterModal from "./modals/FilterModal";
+import UserCreate from "./UserCreate";
+import UserEdit from "./UserEdit";
 
 const ACTION_MAP = {
   lead: {
@@ -87,7 +88,6 @@ const Tabel = ({
   filter,
 }) => {
   const dispatch = useDispatch();
-
   const actions = ACTION_MAP[module] || ACTION_MAP.lead;
 
   const [addModal, setAddModal] = useState(false);
@@ -97,28 +97,34 @@ const Tabel = ({
   const [uploadModal, setUploadModal] = useState(false);
   const [selectedLead, setSelectedLead] = useState(null);
   const [deleteLeadId, setDeleteLeadId] = useState(null);
+  const [showUserCreate, setShowUserCreate] = useState(false);
+  const [showUserEdit, setShowUserEdit] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
 
-  const totaldata = data.length || "0";
+  const totaldata = data?.length || "0";
 
   const [searchLead, setSearchLead] = useState("");
   const debouncedSearchText = useDebounce(searchLead, 500);
-
   const [nameSort, setNameSort] = useState("asc");
   const [dateSort, setDateSort] = useState("");
+  const [filterModal, setFilterModal] = useState(false);
+  const [selectedFilter, setSelectedFilter] = useState([]);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [visibleCount, setVisibleCount] = useState(7);
+  const [loading, setLoading] = useState(false);
+  const tableRef = useRef(null);
 
   const sortNameLeads = () => {
-    setNameSort((prev) => (prev === "asc" ? "desc" : "asc"));
+    setNameSort((p) => (p === "asc" ? "desc" : "asc"));
     setDateSort("");
   };
   const sortDateLeads = () => {
-    setDateSort((prev) => (prev === "asc" ? "desc" : "asc"));
+    setDateSort((p) => (p === "asc" ? "desc" : "asc"));
     setNameSort("");
   };
 
-  // Date format
   const formatDate = (date) => {
     if (!date) return "-";
-
     return new Date(date).toLocaleDateString("en-IN", {
       day: "2-digit",
       month: "short",
@@ -126,17 +132,15 @@ const Tabel = ({
     });
   };
 
-  const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     setLoading(true);
-    const timer = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(timer);
+    const t = setTimeout(() => setLoading(false), 300);
+    return () => clearTimeout(t);
   }, [debouncedSearchText]);
 
-  // Filter Modal
-  const [filterModal, setFilterModal] = useState(false);
-  const [selectedFilter, setSelectedFilter] = useState([]);
+  useEffect(() => {
+    setVisibleCount(7);
+  }, [searchLead, selectedFilter, nameSort, dateSort]);
 
   const filteredLeads = useMemo(() => {
     return [...data]
@@ -165,10 +169,9 @@ const Tabel = ({
       });
   }, [data, debouncedSearchText, nameSort, dateSort, selectedFilter]);
 
-  const [selectedIds, setSelectedIds] = useState([]);
   const handleCheckbox = (id) =>
-    setSelectedIds((prev) =>
-      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id],
+    setSelectedIds((p) =>
+      p.includes(id) ? p.filter((i) => i !== id) : [...p, id],
     );
   const handleSelectAll = () => {
     const visibleIds = filteredLeads.slice(0, visibleCount).map((l) => l.id);
@@ -179,21 +182,12 @@ const Tabel = ({
     dispatch(actions.bulkRemove(selectedIds));
     setSelectedIds([]);
   };
-
-  const [visibleCount, setVisibleCount] = useState(7);
-  const tableRef = useRef(null);
   const handleScroll = () => {
     const el = tableRef.current;
     if (!el) return;
     if (el.scrollTop + el.clientHeight >= el.scrollHeight - 50)
-      setVisibleCount((prev) =>
-        prev >= filteredLeads.length ? prev : prev + 10,
-      );
+      setVisibleCount((p) => (p >= filteredLeads.length ? p : p + 10));
   };
-
-  useEffect(() => {
-    setVisibleCount(7);
-  }, [searchLead]);
 
   const colors = [
     "bg-red-50 text-red-700 border",
@@ -216,6 +210,38 @@ const Tabel = ({
     URL.revokeObjectURL(url);
   };
 
+  const fullPageWrapper =
+    "w-full h-[calc(100vh-120px)] bg-white border border-gray-100 rounded-xl shadow-xl shadow-gray-200 p-6 overflow-hidden";
+
+  // ── UserCreate ──
+  if (showUserCreate) {
+    return (
+      <div className={fullPageWrapper}>
+        <UserCreate
+          onBack={() => setShowUserCreate(false)}
+          triggerNotification={triggerNotification}
+        />
+      </div>
+    );
+  }
+
+  // ── UserEdit ──
+  if (showUserEdit) {
+    return (
+      <div className={fullPageWrapper}>
+        <UserEdit
+          user={editingUser}
+          onBack={() => {
+            setShowUserEdit(false);
+            setEditingUser(null);
+          }}
+          triggerNotification={triggerNotification}
+        />
+      </div>
+    );
+  }
+
+  // ── Table ──
   return (
     <div>
       <section className="w-full max-w-full bg-white border border-gray-100 rounded-xl overflow-hidden shadow-xl shadow-gray-200">
@@ -232,7 +258,6 @@ const Tabel = ({
           </div>
 
           <div className="flex gap-3">
-            {/* Search */}
             <div className="relative">
               <div className="absolute top-2.5 left-2">
                 <HugeiconsIcon icon={Search01Icon} size={17} color="#747474" />
@@ -246,7 +271,6 @@ const Tabel = ({
               />
             </div>
 
-            {/* Filter */}
             <div className="relative">
               <button
                 type="button"
@@ -261,7 +285,6 @@ const Tabel = ({
                 )}
                 <HugeiconsIcon icon={Filter} size={16} strokeWidth={2} />
               </button>
-
               {filterModal && (
                 <FilterModal
                   filter={filter}
@@ -272,7 +295,6 @@ const Tabel = ({
               )}
             </div>
 
-            {/* Upload */}
             <button
               onClick={() => setUploadModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-500 font-medium flex items-center gap-1.5 border border-gray-200 transition text-sm px-4 py-2 rounded-lg"
@@ -281,9 +303,10 @@ const Tabel = ({
               <HugeiconsIcon icon={Upload06Icon} size={18} strokeWidth={2} />
             </button>
 
-            {/* Add */}
             <button
-              onClick={() => setAddModal(true)}
+              onClick={() =>
+                module === "user" ? setShowUserCreate(true) : setAddModal(true)
+              }
               className="bg-primary-700 hover:bg-primary-800 transition text-white text-sm font-medium px-4 py-2 rounded-lg"
             >
               + Add
@@ -315,7 +338,6 @@ const Tabel = ({
           className="h-130 overflow-auto scrollbar-hide"
         >
           <table className="w-full text-sm">
-            {/* Table Head */}
             <thead className="bg-primary-50 sticky top-0 z-10">
               <tr className="text-left text-gray-500 border-b border-gray-200">
                 <th className="p-2 pl-6 w-10">
@@ -355,7 +377,6 @@ const Tabel = ({
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody>
               {loading ? (
                 <tr>
@@ -384,19 +405,14 @@ const Tabel = ({
                     {tableHead.map((column) => (
                       <td
                         key={column.key}
-                        className={`py-4 pl-4 text-gray-600 ${
-                          column.key === "createdAt" ||
-                          column.key === "lastLogin"
-                            ? "whitespace-nowrap min-w-35"
-                            : ""
-                        }`}
+                        className={`py-4 pl-4 text-gray-600 ${column.key === "createdAt" || column.key === "lastLogin" ? "whitespace-nowrap min-w-35" : ""}`}
                       >
                         {column.key === "name" ? (
                           <div className="flex gap-3 items-center">
                             <div
                               className={`h-9 w-9 flex items-center justify-center text-sm font-semibold rounded-full ${colors[index % colors.length]}`}
                             >
-                              {lead.name?.[0]}
+                              {lead.name?.charAt(0)?.toUpperCase() || "?"}
                             </div>
                             <span className="font-medium text-gray-800 whitespace-nowrap">
                               {lead.name}
@@ -437,17 +453,23 @@ const Tabel = ({
                         ) : column.key === "lastLogin" ? (
                           formatDate(lead.lastLogin)
                         ) : (
-                          lead[column.key] || "-"
+                          (lead[column.key] ?? "-")
                         )}
                       </td>
                     ))}
 
                     <td className="py-4 pl-4">
                       <div className="flex gap-2 items-center">
+                        {/* Edit — opens UserEdit for users, EditModal for others */}
                         <div
                           onClick={() => {
-                            setSelectedLead(lead);
-                            setEditModal(true);
+                            if (module === "user") {
+                              setEditingUser(lead);
+                              setShowUserEdit(true);
+                            } else {
+                              setSelectedLead(lead);
+                              setEditModal(true);
+                            }
                           }}
                           className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer"
                         >

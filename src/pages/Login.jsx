@@ -49,9 +49,9 @@ const Login = () => {
         setLoading(true);
 
         const user = userData.find(
-          (item) =>
-            item.email.toLowerCase() === values.email.toLowerCase() &&
-            item.password === values.password,
+          (user) =>
+            user.email.toLowerCase() === values.email.toLowerCase() &&
+            user.password === values.password,
         );
 
         if (!user) {
