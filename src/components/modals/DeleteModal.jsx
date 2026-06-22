@@ -1,49 +1,41 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon, Delete02Icon } from "@hugeicons/core-free-icons";
-import useNotification from "../../utils/useNotification";
 import axios from "axios";
-const API_URL = "http://localhost:3000";
+
 const DeleteModal = ({
   isOpen,
   onClose,
-  deleteLeadId,
-  dispatch,
-  deleteAction,
+  deleteID,
+  endpoint,
+  onSuccess,
   triggerNotification,
 }) => {
+  const [submitting, setSubmitting] = useState(false);
   const modalRef = useRef();
 
   const handleConfirmDelete = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+
     try {
-      // const response = await axios.delete(`${API_URL}/lead/${deleteLeadId}`);
-      const response = await fetch(
-        `https://jsonplaceholder.typicode.com/posts/${deleteLeadId}`,
-        {
-          method: "DELETE",
-        },
-      );
-
-      const data = await response.json();
-      console.log(data);
-
-      dispatch(deleteAction(deleteLeadId));
-
-      triggerNotification({
+      await axios.delete(`${endpoint}/${deleteID}`);
+      triggerNotification?.({
         type: "warning",
         message: "Record deleted successfully!",
         duration: 3000,
       });
-
+      onSuccess?.();
       onClose();
     } catch (err) {
-      console.error(err);
-
-      triggerNotification({
+      console.error("Delete failed:", err.response?.data || err.message);
+      triggerNotification?.({
         type: "error",
         message: "Failed to delete record",
         duration: 3000,
       });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -58,9 +50,10 @@ const DeleteModal = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
       <div className="w-full max-w-sm overflow-hidden rounded-xl bg-white shadow-xl">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 bg-red-50 p-4">
           <div>
-            <h4 className="text-base font-semibold text-gray-800">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-800">
               Delete Record
             </h4>
             <p className="text-sm text-gray-500">
@@ -75,6 +68,7 @@ const DeleteModal = ({
           </div>
         </div>
 
+        {/* Body */}
         <div className="p-6 flex flex-col items-center gap-4">
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
             <HugeiconsIcon icon={Delete02Icon} size={26} color="#cd0000" />
@@ -87,18 +81,24 @@ const DeleteModal = ({
               This will permanently remove it from your list.
             </p>
           </div>
+
+          {/* Actions */}
           <div className="flex w-full gap-3 mt-2">
             <button
+              type="button"
               onClick={onClose}
-              className="flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+              disabled={submitting}
+              className="flex-1 rounded-lg border border-gray-300 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
+              type="button"
               onClick={handleConfirmDelete}
-              className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700"
+              disabled={submitting}
+              className="flex-1 rounded-lg bg-red-600 py-2 text-sm font-medium text-white hover:bg-red-700 disabled:opacity-50"
             >
-              Yes, Delete
+              {submitting ? "Deleting..." : "Yes, Delete"}
             </button>
           </div>
         </div>

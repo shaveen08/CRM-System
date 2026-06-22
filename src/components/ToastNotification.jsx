@@ -16,12 +16,7 @@ const positionStyles = {
   "top-center": "top-5 left-1/2 -translate-x-1/2",
 };
 
-const ToastNotification = ({
-  type,
-  message,
-  onClose,
-  position,
-}) => {
+const ToastNotification = ({ type, message, onClose, position }) => {
   const icons = {
     success: <HugeiconsIcon icon={Tick02Icon} />,
     info: <HugeiconsIcon icon={InformationCircleIcon} />,

@@ -1,28 +1,4 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { useDispatch } from "react-redux";
-import {
-  newLead,
-  updateLead,
-  deleteLead,
-  deleteMultipleLeads,
-  newContact,
-  updateContact,
-  deleteContact,
-  deleteMultipleContacts,
-  newActivity,
-  updateActivity,
-  deleteActivity,
-  newUser,
-  deleteMultipleActivities,
-  updateUser,
-  deleteUser,
-  deleteMultipleUsers,
-  newAppointment,
-  updateAppointment,
-  deleteAppointment,
-  deleteMultipleAppointment,
-} from "../redux/actions/modulesAction";
-
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Delete02Icon,
@@ -35,6 +11,7 @@ import {
 } from "@hugeicons/core-free-icons";
 
 import useDebounce from "../utils/useDebounce";
+
 import AddModal from "./modals/AddModal";
 import EditModal from "./modals/EditModal";
 import DeleteModal from "./modals/DeleteModal";
@@ -44,76 +21,120 @@ import FilterModal from "./modals/FilterModal";
 import UserCreate from "./UserCreate";
 import UserEdit from "./UserEdit";
 
-const ACTION_MAP = {
-  lead: {
-    add: newLead,
-    update: updateLead,
-    remove: deleteLead,
-    bulkRemove: deleteMultipleLeads,
-  },
-  contact: {
-    add: newContact,
-    update: updateContact,
-    remove: deleteContact,
-    bulkRemove: deleteMultipleContacts,
-  },
-  activity: {
-    add: newActivity,
-    update: updateActivity,
-    remove: deleteActivity,
-    bulkRemove: deleteMultipleActivities,
-  },
-  appointment: {
-    add: newAppointment,
-    update: updateAppointment,
-    remove: deleteAppointment,
-    bulkRemove: deleteMultipleAppointment,
-  },
-  user: {
-    add: newUser,
-    update: updateUser,
-    remove: deleteUser,
-    bulkRemove: deleteMultipleUsers,
-  },
-};
+import axios from "axios";
 
 const Tabel = ({
-  data,
   title,
   subtitle,
-  tableHead,
   fields,
   module,
   triggerNotification,
   filter,
+  endpoint,
 }) => {
-  const dispatch = useDispatch();
-  const actions = ACTION_MAP[module] || ACTION_MAP.lead;
+  // API Fetch ---------------------------------------------------------------------------------- /
+  const [apiData, setApiData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  const fetchAPI = async () => {
+    try {
+      setError(null);
+      const response = await axios.get(endpoint);
+      setApiData(response.data.data);
+    } catch (err) {
+      console.error("Error fetching data:", err);
+      setError("Failed to load data. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAPI();
+  }, [endpoint]);
+
+  // Dynamic table head -------------------------------------------------------------------------- /
+  // Fields we never want as visible columns — internal Mongo bookkeeping fields.
+  const EXCLUDED_KEYS = ["_id", "__v", "updatedAt", "first_name", "last_name"];
+
+  // Matches ISO date strings like "2026-05-22T07:12:49.328Z" so date-shaped
+  // values automatically get formatted instead of showing the raw timestamp.
+  const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+  const tableHead = useMemo(() => {
+    if (!apiData || apiData.length === 0) return [];
+
+    const sample = apiData[0];
+    const hasSplitName = "first_name" in sample || "last_name" in sample;
+
+    const generatedColumns = Object.keys(sample)
+      .filter((key) => !EXCLUDED_KEYS.includes(key))
+      .map((key) => {
+        const value = sample[key];
+        const isDate =
+          key === "createdAt" ||
+          key === "lastLogin" ||
+          (typeof value === "string" && ISO_DATE_REGEX.test(value));
+
+        return {
+          key,
+          // Prettify camelCase / snake_case keys into readable titles,
+          // e.g. "dealValue" -> "Deal Value", "first_name" -> "First Name"
+          title: key
+            .replace(/_/g, " ")
+            .replace(/([a-z])([A-Z])/g, "$1 $2")
+            .replace(/\b\w/g, (c) => c.toUpperCase()),
+          sortable: key === "name" || key === "createdAt",
+          type: isDate ? "date" : undefined,
+        };
+      });
+
+    // first_name/last_name are excluded from the loop above (raw fields, not
+    // meant to be separate columns), so we inject one combined "name" column
+    // in their place — this is what renders the avatar initial + full name.
+    if (hasSplitName) {
+      return [
+        { key: "name", title: "Name", sortable: true },
+        ...generatedColumns,
+      ];
+    }
+
+    return generatedColumns;
+  }, [apiData]);
+
+  // ---------------------------------------------------------------------------------------------- /
+
+  const totaldata = apiData?.length || 0;
+
+  // Modals
   const [addModal, setAddModal] = useState(false);
   const [editModal, setEditModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [uploadModal, setUploadModal] = useState(false);
+
   const [selectedLead, setSelectedLead] = useState(null);
   const [deleteLeadId, setDeleteLeadId] = useState(null);
+
   const [showUserCreate, setShowUserCreate] = useState(false);
   const [showUserEdit, setShowUserEdit] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
-  const totaldata = data?.length || "0";
-
   const [searchLead, setSearchLead] = useState("");
   const debouncedSearchText = useDebounce(searchLead, 500);
+
   const [nameSort, setNameSort] = useState("asc");
   const [dateSort, setDateSort] = useState("");
+
   const [filterModal, setFilterModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [visibleCount, setVisibleCount] = useState(7);
-  const [loading, setLoading] = useState(false);
+
   const tableRef = useRef(null);
 
+  // Sorting -------------------------------------------------------------------------------------- /
   const sortNameLeads = () => {
     setNameSort((p) => (p === "asc" ? "desc" : "asc"));
     setDateSort("");
@@ -133,17 +154,19 @@ const Tabel = ({
   };
 
   useEffect(() => {
-    setLoading(true);
-    const t = setTimeout(() => setLoading(false), 300);
-    return () => clearTimeout(t);
-  }, [debouncedSearchText]);
-
-  useEffect(() => {
     setVisibleCount(7);
   }, [searchLead, selectedFilter, nameSort, dateSort]);
 
+  // Returns a comparable full name whether the record uses first_name/last_name
+  // or a single combined name field — keeps sorting working for either schema.
+  const getDisplayName = (item) =>
+    item.first_name
+      ? `${item.first_name} ${item.last_name || ""}`.trim()
+      : item.name || "";
+
+  // Filter, Sort ----------------------------------------------------------------------------------- /
   const filteredLeads = useMemo(() => {
-    return [...data]
+    return [...apiData]
       .filter((item) => {
         const matchesSearch =
           !debouncedSearchText ||
@@ -157,31 +180,33 @@ const Tabel = ({
         return matchesSearch && matchesFilter;
       })
       .sort((a, b) => {
-        if (nameSort && a.name && b.name)
-          return nameSort === "asc"
-            ? a.name.localeCompare(b.name)
-            : b.name.localeCompare(a.name);
+        if (nameSort) {
+          const nameA = getDisplayName(a);
+          const nameB = getDisplayName(b);
+          if (nameA && nameB)
+            return nameSort === "asc"
+              ? nameA.localeCompare(nameB)
+              : nameB.localeCompare(nameA);
+        }
         if (dateSort && a.createdAt && b.createdAt)
           return dateSort === "asc"
             ? new Date(a.createdAt) - new Date(b.createdAt)
             : new Date(b.createdAt) - new Date(a.createdAt);
         return 0;
       });
-  }, [data, debouncedSearchText, nameSort, dateSort, selectedFilter]);
+  }, [apiData, debouncedSearchText, nameSort, dateSort, selectedFilter]);
 
   const handleCheckbox = (id) =>
     setSelectedIds((p) =>
       p.includes(id) ? p.filter((i) => i !== id) : [...p, id],
     );
+
   const handleSelectAll = () => {
-    const visibleIds = filteredLeads.slice(0, visibleCount).map((l) => l.id);
+    const visibleIds = filteredLeads.slice(0, visibleCount).map((l) => l._id);
     const allSelected = visibleIds.every((id) => selectedIds.includes(id));
     setSelectedIds(allSelected ? [] : visibleIds);
   };
-  const handleBulkDelete = () => {
-    dispatch(actions.bulkRemove(selectedIds));
-    setSelectedIds([]);
-  };
+
   const handleScroll = () => {
     const el = tableRef.current;
     if (!el) return;
@@ -213,7 +238,6 @@ const Tabel = ({
   const fullPageWrapper =
     "w-full h-[calc(100vh-120px)] bg-white border border-gray-100 rounded-xl shadow-xl shadow-gray-200 p-6 overflow-hidden";
 
-  // ── UserCreate ──
   if (showUserCreate) {
     return (
       <div className={fullPageWrapper}>
@@ -225,7 +249,6 @@ const Tabel = ({
     );
   }
 
-  // ── UserEdit ──
   if (showUserEdit) {
     return (
       <div className={fullPageWrapper}>
@@ -241,7 +264,6 @@ const Tabel = ({
     );
   }
 
-  // ── Table ──
   return (
     <div>
       <section className="w-full max-w-full bg-white border border-gray-100 rounded-xl overflow-hidden shadow-xl shadow-gray-200">
@@ -257,7 +279,9 @@ const Tabel = ({
             <p className="text-sm text-gray-500">{subtitle}</p>
           </div>
 
+          {/* Table Header Actions */}
           <div className="flex gap-3">
+            {/* Search Field */}
             <div className="relative">
               <div className="absolute top-2.5 left-2">
                 <HugeiconsIcon icon={Search01Icon} size={17} color="#747474" />
@@ -271,6 +295,7 @@ const Tabel = ({
               />
             </div>
 
+            {/* Filter Button */}
             <div className="relative">
               <button
                 type="button"
@@ -295,6 +320,7 @@ const Tabel = ({
               )}
             </div>
 
+            {/* Upload Button */}
             <button
               onClick={() => setUploadModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-500 font-medium flex items-center gap-1.5 border border-gray-200 transition text-sm px-4 py-2 rounded-lg"
@@ -303,6 +329,7 @@ const Tabel = ({
               <HugeiconsIcon icon={Upload06Icon} size={18} strokeWidth={2} />
             </button>
 
+            {/* Add Button */}
             <button
               onClick={() =>
                 module === "user" ? setShowUserCreate(true) : setAddModal(true)
@@ -335,9 +362,10 @@ const Tabel = ({
         <div
           ref={tableRef}
           onScroll={handleScroll}
-          className="h-130 overflow-auto scrollbar-hide"
+          className="h-130 scroll-auto overflow-auto"
         >
-          <table className="w-full text-sm">
+          <table className="w-full text-sm text-nowrap">
+            {/* Table Head */}
             <thead className="bg-primary-50 sticky top-0 z-10">
               <tr className="text-left text-gray-500 border-b border-gray-200">
                 <th className="p-2 pl-6 w-10">
@@ -348,7 +376,7 @@ const Tabel = ({
                       filteredLeads.slice(0, visibleCount).length > 0 &&
                       filteredLeads
                         .slice(0, visibleCount)
-                        .every((l) => selectedIds.includes(l.id))
+                        .every((l) => selectedIds.includes(l._id))
                     }
                     onChange={handleSelectAll}
                   />
@@ -377,6 +405,7 @@ const Tabel = ({
               </tr>
             </thead>
 
+            {/* Table Body */}
             <tbody>
               {loading ? (
                 <tr>
@@ -387,17 +416,32 @@ const Tabel = ({
                     Loading...
                   </td>
                 </tr>
+              ) : error ? (
+                <tr>
+                  <td
+                    colSpan={tableHead.length + 2}
+                    className="py-10 text-center"
+                  >
+                    <p className="text-red-500 font-medium">{error}</p>
+                    <button
+                      onClick={fetchAPI}
+                      className="mt-2 text-sm text-primary-700 underline"
+                    >
+                      Retry
+                    </button>
+                  </td>
+                </tr>
               ) : filteredLeads.length > 0 ? (
                 filteredLeads.slice(0, visibleCount).map((lead, index) => (
                   <tr
-                    key={lead.id}
+                    key={lead._id}
                     className="border-b border-gray-100 hover:bg-primary-50/40 transition"
                   >
                     <td className="p-2 pl-6">
                       <input
                         type="checkbox"
-                        checked={selectedIds.includes(lead.id)}
-                        onChange={() => handleCheckbox(lead.id)}
+                        checked={selectedIds.includes(lead._id)}
+                        onChange={() => handleCheckbox(lead._id)}
                         className="h-3.5 w-3.5 cursor-pointer"
                       />
                     </td>
@@ -405,19 +449,43 @@ const Tabel = ({
                     {tableHead.map((column) => (
                       <td
                         key={column.key}
-                        className={`py-4 pl-4 text-gray-600 ${column.key === "createdAt" || column.key === "lastLogin" ? "whitespace-nowrap min-w-35" : ""}`}
+                        className={`py-4 pl-4 text-gray-600 ${
+                          column.key === "createdAt" ||
+                          column.key === "lastLogin"
+                            ? "whitespace-nowrap min-w-35"
+                            : ""
+                        }`}
                       >
                         {column.key === "name" ? (
-                          <div className="flex gap-3 items-center">
-                            <div
-                              className={`h-9 w-9 flex items-center justify-center text-sm font-semibold rounded-full ${colors[index % colors.length]}`}
-                            >
-                              {lead.name?.charAt(0)?.toUpperCase() || "?"}
-                            </div>
-                            <span className="font-medium text-gray-800 whitespace-nowrap">
-                              {lead.name}
-                            </span>
-                          </div>
+                          (() => {
+                            // Some modules (leads) store first_name/last_name
+                            // separately; others may use a single name field.
+                            // Combine whichever is present so the avatar and
+                            // label always have a value to render.
+                            const fullName = lead.first_name
+                              ? `${lead.first_name} ${lead.last_name || ""}`.trim()
+                              : lead.name || "";
+                            const initial = (
+                              lead.first_name ||
+                              lead.name ||
+                              "?"
+                            )
+                              .charAt(0)
+                              .toUpperCase();
+
+                            return (
+                              <div className="flex gap-3 items-center">
+                                <div
+                                  className={`h-9 w-9 flex items-center justify-center text-sm font-semibold rounded-full ${colors[index % colors.length]}`}
+                                >
+                                  {initial}
+                                </div>
+                                <span className="font-medium text-gray-800 whitespace-nowrap">
+                                  {fullName || "-"}
+                                </span>
+                              </div>
+                            );
+                          })()
                         ) : column.key === "status" ? (
                           <span
                             className={`px-2.5 py-1 text-xs font-medium rounded-full ${
@@ -452,15 +520,18 @@ const Tabel = ({
                           formatDate(lead.createdAt)
                         ) : column.key === "lastLogin" ? (
                           formatDate(lead.lastLogin)
+                        ) : column.type === "date" ? (
+                          formatDate(lead[column.key])
                         ) : (
                           (lead[column.key] ?? "-")
                         )}
                       </td>
                     ))}
 
+                    {/* Row action button */}
                     <td className="py-4 pl-4">
                       <div className="flex gap-2 items-center">
-                        {/* Edit — opens UserEdit for users, EditModal for others */}
+                        {/* Edit Action */}
                         <div
                           onClick={() => {
                             if (module === "user") {
@@ -479,6 +550,8 @@ const Tabel = ({
                             color="#534ab7"
                           />
                         </div>
+
+                        {/* View Action */}
                         <div
                           onClick={() => {
                             setSelectedLead(lead);
@@ -492,9 +565,11 @@ const Tabel = ({
                             color="#0F766E"
                           />
                         </div>
+
+                        {/* Delete Action */}
                         <div
                           onClick={() => {
-                            setDeleteLeadId(lead.id);
+                            setDeleteLeadId(lead._id);
                             setDeleteModal(true);
                           }}
                           className="flex h-8 w-8 mr-4 items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 cursor-pointer"
@@ -530,29 +605,31 @@ const Tabel = ({
       <AddModal
         isOpen={addModal}
         onClose={() => setAddModal(false)}
-        data={data}
-        dispatch={dispatch}
         fields={fields}
-        addAction={actions.add}
+        endpoint={endpoint}
+        onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
+
       <EditModal
         isOpen={editModal}
         onClose={() => setEditModal(false)}
         lead={selectedLead}
-        dispatch={dispatch}
+        endpoint={endpoint}
         fields={fields}
-        updateAction={actions.update}
+        onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
+      
       <DeleteModal
         isOpen={deleteModal}
         onClose={() => setDeleteModal(false)}
-        deleteLeadId={deleteLeadId}
-        dispatch={dispatch}
-        deleteAction={actions.remove}
+        deleteID={deleteLeadId}
+        endpoint={endpoint}
+        onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
+
       <ViewModal
         isOpen={viewModal}
         onClose={() => setViewModal(false)}

@@ -3,18 +3,17 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import axios from "axios";
 
-const API_URL = "http://localhost:3000";
-
 const EditModal = ({
   isOpen,
   onClose,
   lead,
-  dispatch,
   fields,
-  updateAction,
+  endpoint,
+  onSuccess,
   triggerNotification,
 }) => {
   const [formData, setFormData] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
   const modalRef = useRef();
 
   useEffect(() => {
@@ -28,28 +27,37 @@ const EditModal = ({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("submitting state:", submitting);
+    console.log("formData:", formData);
+    if (submitting) return;
+
+    setSubmitting(true);
+
+    // Strip internal Mongo fields before sending
+    const { _id, __v, createdAt, updatedAt, ...payload } = formData;
 
     try {
-      // const response = await axios.put(`${API_URL}/editlead/${formData.id}`, formData);
-      const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${formData.id}`, {
-        method: "PUT",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(formData)
-      });
+      await axios.put(`${endpoint}/${formData._id}`, payload);
+      console.log("trigger fn:", triggerNotification);
+      console.log("about to trigger notification");
 
-      const data = await response.json();
-      console.log(data);
-
-      dispatch(updateAction(formData));
-      triggerNotification({
+      triggerNotification?.({
         type: "info",
         message: "Record updated successfully!",
         duration: 3000,
       });
+      onSuccess?.();
+      onClose();
     } catch (err) {
-      console.error(err);
+      console.error("Update failed:", err.response?.data || err.message);
+      triggerNotification?.({
+        type: "error",
+        message: "Failed to update record",
+        duration: 3000,
+      });
+    } finally {
+      setSubmitting(false);
     }
-    onClose();
   };
 
   if (!isOpen || !formData) return null;
@@ -63,9 +71,10 @@ const EditModal = ({
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4"
     >
       <div className="w-full max-w-3xl overflow-hidden rounded-xl bg-white shadow-xl">
+        {/* Header */}
         <div className="flex items-center justify-between border-b border-gray-100 bg-primary-50 p-4">
           <div>
-            <h4 className="text-base font-semibold text-gray-800">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-gray-800">
               Edit Record
             </h4>
             <p className="text-sm text-gray-500">
@@ -80,54 +89,71 @@ const EditModal = ({
           </div>
         </div>
 
+        {/* Form */}
         <div className="p-4">
           <form
             onSubmit={handleSubmit}
+            autoComplete="off"
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
-            {fields.map((field) =>
-              field.type === "select" ? (
-                <select
-                  key={field.name}
-                  name={field.name}
-                  value={formData[field.name] || ""}
-                  onChange={handleChange}
-                  required
-                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500 text-gray-700"
+            {fields.map((field) => (
+              <div key={field.name}>
+                <label
+                  htmlFor={field.name}
+                  className="block text-xs font-medium text-gray-600 mb-1.5"
                 >
-                  <option value="">Select {field.label}</option>
-                  {field.options.map((opt) => (
-                    <option key={opt} value={opt}>
-                      {opt}
+                  {field.label}
+                </label>
+
+                {field.type === "select" ? (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={formData[field.name] || ""}
+                    onChange={handleChange}
+                    required
+                    className="h-11 w-full text-sm border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500 text-gray-700"
+                  >
+                    <option value="" disabled>
+                      Select {field.label}
                     </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  key={field.name}
-                  type={field.type}
-                  name={field.name}
-                  value={formData[field.name] || ""}
-                  onChange={handleChange}
-                  placeholder={field.label}
-                  required
-                  className="h-11 border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
-                />
-              ),
-            )}
+                    {field.options?.map((opt) => (
+                      <option key={opt} value={opt}>
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    id={field.name}
+                    type={field.type}
+                    name={field.name}
+                    value={formData[field.name] || ""}
+                    onChange={handleChange}
+                    placeholder={field.label}
+                    required
+                    className="h-11 w-full text-sm border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
+                  />
+                )}
+              </div>
+            ))}
+
+            {/* Actions */}
             <div className="md:col-span-2 flex justify-end gap-3">
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50"
+                disabled={submitting}
+                className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-50 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800"
+                disabled={submitting}
+                className="rounded-lg bg-primary-700 px-4 py-2 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
               >
-                Save Changes
+                {submitting ? "Saving..." : "Save Changes"}
               </button>
             </div>
           </form>

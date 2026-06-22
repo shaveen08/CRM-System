@@ -243,6 +243,7 @@ const Dashboard = () => {
       <div className="flex flex-col w-full ml-60 pt-16 overflow-y-auto">
         <Navbar />
 
+        {/* Dashboard */}
         <div className="p-5 flex flex-col gap-5">
           {/* Page Header */}
           <div className="flex items-center justify-between w-full">
