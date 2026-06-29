@@ -1,12 +1,6 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Sidebar from "../components/Sidebar";
 import Navbar from "../components/Navbar";
-
-// import dashboardJson from "../data/dashboardData.json";
-// import { useDispatch } from "react-redux";
-// import { dashboardModuleData } from "../redux/actions/modulesAction";
-
-// Icons
 import { HugeiconsIcon } from "@hugeicons/react";
 import {
   Calendar03Icon,
@@ -19,9 +13,7 @@ import {
   UserSwitchIcon,
   UserTime01Icon,
 } from "@hugeicons/core-free-icons";
-
-// Redux
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   Area,
   AreaChart,
@@ -35,9 +27,20 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { getDashboardData } from "../redux/dashboard/dashboardAction";
+import axios from "axios";
+
+// Loading Spinner Component
+const Spinner = () => (
+  <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+    <div className="flex flex-col items-center gap-3">
+      <div className="h-10 w-10 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+      <p className="text-sm text-gray-400">Loading dashboard...</p>
+    </div>
+  </div>
+);
 
 const Dashboard = () => {
-  // Date ---------------------------------------------------------------------------------------------------------------
   const [currentTime, setCurrentTime] = useState("");
 
   useEffect(() => {
@@ -47,18 +50,17 @@ const Dashboard = () => {
     else setCurrentTime("Good Evening");
   }, []);
 
-  // --- Redux data ------------------------------------------------------------------------------------------------------------------------- /
-  // const dispatch = useDispatch();
+  const dispatch = useDispatch();
 
-  // useEffect(() => {
-  //   dispatch(dashboardModuleData(dashboardJson));
-  // }, [dispatch]);
+  useEffect(() => {
+    dispatch(getDashboardData());
+  }, [dispatch]);
 
-  const dashboardData =
-    useSelector((state) => state.modules.dashboardData) || {};
-  const leadsData = useSelector((state) => state.modules.leadsData) || [];
-  
-  // --- Date ------------------------------------------------------------------------------------------------------------------------------- /
+  const { dashboardData, loading, error } = useSelector(
+    (state) => state.dashboard,
+  );
+  const summary = dashboardData?.summary || {};
+
   const formattedDate = new Date().toLocaleDateString("en-GB");
   const [datePicker, setDatePicker] = useState("");
   const datePickerRef = useRef(null);
@@ -72,58 +74,35 @@ const Dashboard = () => {
     }
   };
 
-  // --- Filtered Leads  ------------------------------------------------------------------------------------------------------------------- /
-  const filteredLeads = useMemo(() => {
-    if (!datePicker) return leadsData;
-    return leadsData.filter((lead) => {
-      if (!lead.createdAt) return false;
-      return lead.createdAt.substring(0, 10) === datePicker;
-    });
-  }, [leadsData, datePicker]);
-
-  // --- Export  -------------------------------------------------------------------------------------------------------------------------- /
-  const handleExport = () => {
-    if (!filteredLeads.length) return;
-
-    const headers = Object.keys(filteredLeads[0]).join(",");
-    const rows = filteredLeads.map((lead) =>
-      Object.values(lead)
-        .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
-        .join(","),
-    );
-    const csv = [headers, ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `leads-export-${datePicker || new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+  const handleExport = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/leads");
+      const leads = response.data.data;
+      if (!leads.length) return;
+      const headers = Object.keys(leads[0]).join(",");
+      const rows = leads.map((lead) =>
+        Object.values(lead)
+          .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
+          .join(","),
+      );
+      const csv = [headers, ...rows].join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `leads-export-${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Export failed:", error);
+    }
   };
-
-  // --- KPI derived values  --------------------------------------------------------------------------------------------------------------- /
-  const pendingLeads = useMemo(
-    () => filteredLeads.filter((l) => l.status === "Pending"),
-    [filteredLeads],
-  );
-
-  const completedLeads = useMemo(
-    () => filteredLeads.filter((l) => l.status === "Completed"),
-    [filteredLeads],
-  );
-
-  const revenueLead = useMemo(() => {
-    const values = filteredLeads
-      .filter((l) => l.dealValue)
-      .map((l) => l.dealValue);
-    return values.length ? values.reduce((a, b) => a + b, 0) : 0;
-  }, [filteredLeads]);
 
   const kpiCards = [
     {
       title: "Total Leads",
-      value: filteredLeads.length,
-      badge: "+12 this week",
+      value: dashboardData?.totalLeads,
+      badge: `${dashboardData?.totalLeads || 0} total`,
       icon: (
         <HugeiconsIcon
           icon={UserGroupIcon}
@@ -135,8 +114,8 @@ const Dashboard = () => {
     },
     {
       title: "Pending Leads",
-      value: pendingLeads.length,
-      badge: "42 pending",
+      value: summary.pendingLeads,
+      badge: `${summary.pendingLeads || 0} pending`,
       icon: (
         <HugeiconsIcon
           icon={UserTime01Icon}
@@ -148,8 +127,8 @@ const Dashboard = () => {
     },
     {
       title: "Converted Leads",
-      value: completedLeads.length,
-      badge: "+18 converted",
+      value: summary.completedLeads,
+      badge: `${summary.completedLeads || 0} converted`,
       icon: (
         <HugeiconsIcon
           icon={UserCheck01Icon}
@@ -161,8 +140,8 @@ const Dashboard = () => {
     },
     {
       title: "Revenue Generated",
-      value: `₹${revenueLead.toLocaleString()}`,
-      badge: "+₹6k revenue",
+      value: `₹${(dashboardData?.totalRevenue || 0).toLocaleString()}`,
+      badge: `₹${(dashboardData?.totalRevenue || 0).toLocaleString()}`,
       icon: (
         <HugeiconsIcon
           icon={SaveMoneyDollarIcon}
@@ -174,67 +153,21 @@ const Dashboard = () => {
     },
   ];
 
-  // --- Chart helpers -------------------------------------------------------------------------------------------------------------------- /
   const [activeTab, setActiveTab] = useState("monthly");
   const conversionData = dashboardData?.conversion?.[activeTab] || [];
-  const dealPerformance = dashboardData?.dealPerformance || [];
+  const dealPerformance = dashboardData?.conversion?.monthly || [];
+  const monthlyLeadsChartData = dashboardData?.conversion?.monthly || [];
 
-  const getWeekNumber = (dateString) => {
-    const date = new Date(dateString);
-    const oneJan = new Date(date.getFullYear(), 0, 1);
-    const days = Math.floor((date - oneJan) / 86400000);
-    return Math.ceil((date.getDay() + 1 + days) / 7);
-  };
-
-  const { monthlyLeadsChartData, weeklyLeads, dailyLeads } = useMemo(() => {
-    const monthly = {};
-    const weekly = {};
-    const daily = {};
-    const monthMap = {};
-
-    filteredLeads.forEach((lead) => {
-      if (!lead.createdAt) return;
-
-      const month = lead.createdAt.substring(0, 7);
-      const year = lead.createdAt.substring(0, 4);
-      const week = getWeekNumber(lead.createdAt);
-      const day = lead.createdAt.substring(0, 10);
-      const weekKey = `${year}-W${week}`;
-
-      monthly[month] = (monthly[month] || 0) + 1;
-      weekly[weekKey] = (weekly[weekKey] || 0) + 1;
-      daily[day] = (daily[day] || 0) + 1;
-
-      if (!monthMap[month]) {
-        monthMap[month] = {
-          month,
-          total: 0,
-          pending: 0,
-          converted: 0,
-          dropped: 0,
-        };
-      }
-      monthMap[month].total += 1;
-      if (lead.status === "Pending") monthMap[month].pending += 1;
-      if (lead.status === "Completed") monthMap[month].converted += 1;
-      if (lead.status === "Dropped") monthMap[month].dropped += 1;
-    });
-
-    const monthlyLeadsChartData = Object.entries(monthMap)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([key, val]) => ({
-        ...val,
-        month: new Date(key + "-01").toLocaleString("en-US", {
-          month: "short",
-          year: "2-digit",
-        }),
-      }));
-
-    return { monthlyLeadsChartData, weeklyLeads: weekly, dailyLeads: daily };
-  }, [filteredLeads]);
-
-  // --- Logged User Details  ---------------------------------------------------------------------------------------------------------------- /
   const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+
+  // --- Loading & Error states ---
+  if (loading) return <Spinner />;
+  if (error)
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+        <p className="text-red-400 text-sm">{error}</p>
+      </div>
+    );
 
   return (
     <div className="flex h-screen w-full bg-gray-50">
@@ -243,7 +176,6 @@ const Dashboard = () => {
       <div className="flex flex-col w-full ml-60 pt-16 overflow-y-auto">
         <Navbar />
 
-        {/* Dashboard */}
         <div className="p-5 flex flex-col gap-5">
           {/* Page Header */}
           <div className="flex items-center justify-between w-full">
@@ -255,7 +187,6 @@ const Dashboard = () => {
             </section>
 
             <section className="relative flex items-center gap-3">
-              {/* Date Picker */}
               <div className="flex items-center gap-2">
                 <div onClick={openPicker} className="cursor-pointer">
                   <div className="h-full flex items-center border border-gray-200 rounded-xl overflow-hidden bg-white">
@@ -276,8 +207,6 @@ const Dashboard = () => {
                     className="absolute opacity-0 pointer-events-none w-0 h-0"
                   />
                 </div>
-
-                {/* Clear button */}
                 {datePicker && (
                   <button
                     onClick={() => setDatePicker("")}
@@ -288,7 +217,6 @@ const Dashboard = () => {
                 )}
               </div>
 
-              {/* Export Button */}
               <button
                 type="button"
                 onClick={handleExport}
@@ -313,40 +241,36 @@ const Dashboard = () => {
               >
                 <div className="flex items-start justify-between">
                   <div
-                    className={`h-9 w-9 flex items-center justify-center rounded-lg
-                      ${
-                        card.title === "Total Leads"
-                          ? "text-purple-700 bg-purple-50"
-                          : card.title === "Pending Leads"
-                            ? "text-yellow-700 bg-yellow-50"
-                            : card.title === "Converted Leads"
-                              ? "text-blue-700   bg-blue-50"
-                              : card.title === "Revenue Generated"
-                                ? "text-green-700  bg-green-50"
-                                : ""
-                      }`}
+                    className={`h-9 w-9 flex items-center justify-center rounded-lg ${
+                      card.title === "Total Leads"
+                        ? "text-purple-700 bg-purple-50"
+                        : card.title === "Pending Leads"
+                          ? "text-yellow-700 bg-yellow-50"
+                          : card.title === "Converted Leads"
+                            ? "text-blue-700 bg-blue-50"
+                            : card.title === "Revenue Generated"
+                              ? "text-green-700 bg-green-50"
+                              : ""
+                    }`}
                   >
                     {card.icon}
                   </div>
-
                   <span
-                    className={`text-xs font-medium px-3 py-1.5 rounded-full
-                      ${
-                        card.title === "Total Leads"
-                          ? "text-purple-700 bg-purple-50"
-                          : card.title === "Pending Leads"
-                            ? "text-yellow-700 bg-yellow-50"
-                            : card.title === "Converted Leads"
-                              ? "text-blue-700   bg-blue-50"
-                              : card.title === "Revenue Generated"
-                                ? "text-green-700  bg-green-50"
-                                : ""
-                      }`}
+                    className={`text-xs font-medium px-3 py-1.5 rounded-full ${
+                      card.title === "Total Leads"
+                        ? "text-purple-700 bg-purple-50"
+                        : card.title === "Pending Leads"
+                          ? "text-yellow-700 bg-yellow-50"
+                          : card.title === "Converted Leads"
+                            ? "text-blue-700 bg-blue-50"
+                            : card.title === "Revenue Generated"
+                              ? "text-green-700 bg-green-50"
+                              : ""
+                    }`}
                   >
                     {card.badge}
                   </span>
                 </div>
-
                 <div>
                   <p className="text-sm text-gray-400 mb-1">{card.title}</p>
                   <h1 className="text-3xl font-semibold tracking-tight text-gray-900">
@@ -385,7 +309,6 @@ const Dashboard = () => {
                     {dashboardData?.summary?.conversionRate || "—"}
                   </p>
                 </div>
-
                 <div className="h-11 w-fit bg-gray-50 flex items-center p-1 rounded-lg">
                   {["daily", "weekly", "monthly"].map((tab) => (
                     <button
@@ -538,7 +461,7 @@ const Dashboard = () => {
                     stroke="#f1f5f9"
                   />
                   <XAxis
-                    dataKey="month"
+                    dataKey="label"
                     tick={{ fontSize: 12, fill: "#94a3b8" }}
                     axisLine={false}
                     tickLine={false}
@@ -557,7 +480,6 @@ const Dashboard = () => {
                     }}
                   />
                   <Bar dataKey="total" fill="#4361ee" radius={[6, 6, 0, 0]} />
-                  <Bar dataKey="pending" fill="#e9c46a" radius={[6, 6, 0, 0]} />
                   <Bar
                     dataKey="converted"
                     fill="#2a9d8f"
@@ -570,7 +492,6 @@ const Dashboard = () => {
               <div className="flex items-center gap-4 flex-wrap my-2 ml-4">
                 {[
                   { color: "#4361ee", label: "Total" },
-                  { color: "#e9c46a", label: "Pending" },
                   { color: "#2a9d8f", label: "Converted" },
                   { color: "#bc4749", label: "Dropped" },
                 ].map(({ color, label }) => (
@@ -613,9 +534,9 @@ const Dashboard = () => {
 
               <div className="flex items-center gap-5 flex-wrap mb-5">
                 {[
-                  { color: "#2196f3", label: "Won Deals" },
-                  { color: "#f44236", label: "Lost Deals" },
-                  { color: "#ffca29", label: "Pending" },
+                  { color: "#7E57C2", label: "Total" },
+                  { color: "#4CAF50", label: "Converted" },
+                  { color: "#f44236", label: "Dropped" },
                 ].map(({ color, label }) => (
                   <div key={label} className="flex items-center gap-2">
                     <span
@@ -638,7 +559,7 @@ const Dashboard = () => {
                     stroke="#f1f5f9"
                   />
                   <XAxis
-                    dataKey="month"
+                    dataKey="label"
                     axisLine={false}
                     tickLine={false}
                     tick={{ fontSize: 12, fill: "#94a3b8" }}
@@ -658,24 +579,24 @@ const Dashboard = () => {
                   />
                   <Line
                     type="monotone"
-                    dataKey="won"
-                    stroke="#2196f3"
+                    dataKey="total"
+                    stroke="#7E57C2"
                     strokeWidth={1.8}
                     dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                     activeDot={{ r: 6 }}
                   />
                   <Line
                     type="monotone"
-                    dataKey="lost"
+                    dataKey="converted"
+                    stroke="#4CAF50"
+                    strokeWidth={1.8}
+                    dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
+                    activeDot={{ r: 6 }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="dropped"
                     stroke="#f44236"
-                    strokeWidth={1.8}
-                    dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
-                    activeDot={{ r: 6 }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="pending"
-                    stroke="#ffca29"
                     strokeWidth={1.8}
                     dot={{ r: 4, strokeWidth: 2, fill: "#fff" }}
                     activeDot={{ r: 6 }}
@@ -733,25 +654,29 @@ const Dashboard = () => {
                 </p>
               </div>
               <div className="flex flex-col gap-4">
-                {dashboardData?.upcomingReminders?.map((reminder) => (
-                  <div
-                    key={reminder.id}
-                    className="border border-gray-100 rounded-xl p-4 flex items-center justify-between"
-                  >
-                    <div>
-                      <h3 className="text-sm font-medium text-gray-800">
-                        {reminder.title}
-                      </h3>
-                      <p className="text-xs text-gray-400 mt-1">
-                        {reminder.date} • {reminder.time}
-                      </p>
+                {dashboardData?.upcomingReminders?.length > 0 ? (
+                  dashboardData.upcomingReminders.map((reminder) => (
+                    <div
+                      key={reminder.id}
+                      className="border border-gray-100 rounded-xl p-4 flex items-center justify-between"
+                    >
+                      <div>
+                        <h3 className="text-sm font-medium text-gray-800">
+                          {reminder.title}
+                        </h3>
+                        <p className="text-xs text-gray-400 mt-1">
+                          {reminder.date} • {reminder.time}
+                        </p>
+                      </div>
+                      <div className="relative flex items-center justify-center">
+                        <span className="absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75 animate-ping" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-purple-500" />
+                      </div>
                     </div>
-                    <div className="relative flex items-center justify-center">
-                      <span className="absolute inline-flex h-3 w-3 rounded-full bg-purple-400 opacity-75 animate-ping" />
-                      <span className="relative inline-flex h-2 w-2 rounded-full bg-purple-500" />
-                    </div>
-                  </div>
-                ))}
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-400">No upcoming reminders</p>
+                )}
               </div>
             </div>
           </section>

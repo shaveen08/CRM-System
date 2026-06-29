@@ -1,80 +1,77 @@
 import React, { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
-// JSON Data
-import dashboardData from "./data/dashboardData.json";
-import leadsData from "./data/leadsData.json";
-import contactData from "./data/contactData.json";
-import activityData from "./data/activityData.json";
-import appointmentData from "./data/appointmentsData.json";
-import userData from "./data/userData.json";
-import notificationsData from "./data/notificationsData.json";
-
-// // Redux
-import { useDispatch } from "react-redux";
-import {
-  dashboardModuleData,
-  leadModuleData,
-  contactModuleData,
-  activityModuleData,
-  userModuleData,
-  notificationModuleData,
-  appointmentModuleData,
-} from "./redux/actions/modulesAction";
+import { notificationModuleData } from "./redux/notifications/notificationAction";
 
 // Routing
 import ProtectedRoutes from "./routes/ProtectedRoutes";
 import Login from "./pages/Login";
-import Registeration from "./pages/Registeration";
+import Unauthorized from "./pages/Unauthorized";
 
 // Lazy routing
 const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Lead = lazy(() => import("./pages/Lead"));
+const Leads = lazy(() => import("./pages/Leads"));
 const Contacts = lazy(() => import("./pages/Contacts"));
-const Activity = lazy(() => import("./pages/Activity"));
-const Appointment = lazy(() => import("./pages/Appointment"));
+const Activities = lazy(() => import("./pages/Activities"));
+const Appointments = lazy(() => import("./pages/Appointment"));
 const Users = lazy(() => import("./pages/Users"));
 const Notification = lazy(() => import("./pages/Notification"));
-const UserCreate = lazy(() => import("./components/UserCreate"));
 
 const App = () => {
-  const dispatch = useDispatch();
-
-  useEffect(() => {
-    dispatch(dashboardModuleData(dashboardData));
-    dispatch(leadModuleData(leadsData));
-    dispatch(contactModuleData(contactData));
-    dispatch(activityModuleData(activityData));
-    dispatch(appointmentModuleData(appointmentData));
-    dispatch(userModuleData(userData));
-    dispatch(notificationModuleData(notificationsData));
-  }, [dispatch]);
-
   return (
     <BrowserRouter>
       <div className="h-screen w-full flex">
-        <Suspense fallback={<div>Loading...</div>}>
+        <Suspense
+          fallback={
+            <div className="flex h-screen w-full items-center justify-center bg-gray-50">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-10 w-10 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+                <p className="text-sm text-gray-400">Loading...</p>
+              </div>
+            </div>
+          }
+        >
           <Routes>
-            {/* Public Routes */}
+            {/* Public */}
             <Route path="/" element={<Login />} />
-            {/* <Route path="/register" element={<Registeration />} /> */}
 
-            {/* Private Routes */}
-            <Route element={<ProtectedRoutes />}>
-              {/* Modules */}
+            {/* Dashboard */}
+            <Route element={<ProtectedRoutes permission="dashboard" />}>
               <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/lead" element={<Lead />} />
+            </Route>
+
+            {/* Leads */}
+            <Route element={<ProtectedRoutes permission="leads" />}>
+              <Route path="/leads" element={<Leads />} />
+            </Route>
+
+            {/* Contacts */}
+            <Route element={<ProtectedRoutes permission="contacts" />}>
               <Route path="/contacts" element={<Contacts />} />
-              <Route path="/activity" element={<Activity />} />
-              <Route path="/appointment" element={<Appointment />} />
+            </Route>
+
+            {/* Activities */}
+            <Route element={<ProtectedRoutes permission="activities" />}>
+              <Route path="/activities" element={<Activities />} />
+            </Route>
+
+            {/* Appointments */}
+            <Route element={<ProtectedRoutes permission="appointments" />}>
+              <Route path="/appointments" element={<Appointments />} />
+            </Route>
+
+            {/* Users */}
+            <Route element={<ProtectedRoutes permission="users" />}>
               <Route path="/users" element={<Users />} />
+            </Route>
 
-              {/* Modal */}
-              {/* <Route path="/users/create" element={<UserCreate />} /> */}
-
-              {/* Notification */}
+            {/* Notification - if everyone logged in can access */}
+            <Route element={<ProtectedRoutes />}>
               <Route path="/notification" element={<Notification />} />
             </Route>
+
+            {/* Unauthorized */}
+            <Route path="/unauthorized" element={<Unauthorized />} />
           </Routes>
         </Suspense>
       </div>

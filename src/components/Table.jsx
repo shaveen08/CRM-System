@@ -18,21 +18,18 @@ import DeleteModal from "./modals/DeleteModal";
 import ViewModal from "./modals/ViewModal";
 import UploadModal from "./modals/UploadModal";
 import FilterModal from "./modals/FilterModal";
-import UserCreate from "./UserCreate";
-import UserEdit from "./UserEdit";
 
 import axios from "axios";
+import { formConfig } from "../config/formFields";
 
-const Tabel = ({
-  title,
-  subtitle,
-  fields,
-  module,
-  triggerNotification,
-  filter,
-  endpoint,
-}) => {
-  // API Fetch ---------------------------------------------------------------------------------- /
+const Table = ({ module, triggerNotification }) => {
+  // Config
+  const endpoint = formConfig[module].endpoint;
+  const title = formConfig[module].title;
+  const subtitle = formConfig[module].subtitle;
+  const filter = formConfig[module].filter;
+
+  // API
   const [apiData, setApiData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -40,7 +37,7 @@ const Tabel = ({
   const fetchAPI = async () => {
     try {
       setError(null);
-      const response = await axios.get(endpoint);
+      const response = await axios.get(`http://localhost:5000${endpoint}`);
       setApiData(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -54,56 +51,35 @@ const Tabel = ({
     fetchAPI();
   }, [endpoint]);
 
-  // Dynamic table head -------------------------------------------------------------------------- /
-  // Fields we never want as visible columns — internal Mongo bookkeeping fields.
-  const EXCLUDED_KEYS = ["_id", "__v", "updatedAt", "first_name", "last_name"];
-
-  // Matches ISO date strings like "2026-05-22T07:12:49.328Z" so date-shaped
-  // values automatically get formatted instead of showing the raw timestamp.
+  // Table columns
+  const EXCLUDED_KEYS = ["_id", "__v", "updatedAt", "createdAt", "password"];
   const ISO_DATE_REGEX = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
 
   const tableHead = useMemo(() => {
     if (!apiData || apiData.length === 0) return [];
-
     const sample = apiData[0];
-    const hasSplitName = "first_name" in sample || "last_name" in sample;
 
-    const generatedColumns = Object.keys(sample)
+    return Object.keys(sample)
       .filter((key) => !EXCLUDED_KEYS.includes(key))
       .map((key) => {
         const value = sample[key];
         const isDate =
-          key === "createdAt" ||
           key === "lastLogin" ||
+          key === "dueDate" ||
+          key === "start_time" ||
+          key === "end_time" ||
           (typeof value === "string" && ISO_DATE_REGEX.test(value));
-
         return {
           key,
-          // Prettify camelCase / snake_case keys into readable titles,
-          // e.g. "dealValue" -> "Deal Value", "first_name" -> "First Name"
           title: key
             .replace(/_/g, " ")
             .replace(/([a-z])([A-Z])/g, "$1 $2")
             .replace(/\b\w/g, (c) => c.toUpperCase()),
-          sortable: key === "name" || key === "createdAt",
+          sortable: key === "createdAt",
           type: isDate ? "date" : undefined,
         };
       });
-
-    // first_name/last_name are excluded from the loop above (raw fields, not
-    // meant to be separate columns), so we inject one combined "name" column
-    // in their place — this is what renders the avatar initial + full name.
-    if (hasSplitName) {
-      return [
-        { key: "name", title: "Name", sortable: true },
-        ...generatedColumns,
-      ];
-    }
-
-    return generatedColumns;
   }, [apiData]);
-
-  // ---------------------------------------------------------------------------------------------- /
 
   const totaldata = apiData?.length || 0;
 
@@ -113,32 +89,28 @@ const Tabel = ({
   const [deleteModal, setDeleteModal] = useState(false);
   const [viewModal, setViewModal] = useState(false);
   const [uploadModal, setUploadModal] = useState(false);
+  const [filterModal, setFilterModal] = useState(false);
 
   const [selectedLead, setSelectedLead] = useState(null);
   const [deleteLeadId, setDeleteLeadId] = useState(null);
-
-  const [showUserCreate, setShowUserCreate] = useState(false);
-  const [showUserEdit, setShowUserEdit] = useState(false);
-  const [editingUser, setEditingUser] = useState(null);
 
   const [searchLead, setSearchLead] = useState("");
   const debouncedSearchText = useDebounce(searchLead, 500);
 
   const [nameSort, setNameSort] = useState("asc");
   const [dateSort, setDateSort] = useState("");
-
-  const [filterModal, setFilterModal] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState([]);
   const [selectedIds, setSelectedIds] = useState([]);
   const [visibleCount, setVisibleCount] = useState(7);
 
   const tableRef = useRef(null);
 
-  // Sorting -------------------------------------------------------------------------------------- /
+  // Sorting
   const sortNameLeads = () => {
     setNameSort((p) => (p === "asc" ? "desc" : "asc"));
     setDateSort("");
   };
+
   const sortDateLeads = () => {
     setDateSort((p) => (p === "asc" ? "desc" : "asc"));
     setNameSort("");
@@ -157,20 +129,25 @@ const Tabel = ({
     setVisibleCount(7);
   }, [searchLead, selectedFilter, nameSort, dateSort]);
 
-  // Returns a comparable full name whether the record uses first_name/last_name
-  // or a single combined name field — keeps sorting working for either schema.
+  // Get display name — handles both name and first_name/last_name
   const getDisplayName = (item) =>
     item.first_name
       ? `${item.first_name} ${item.last_name || ""}`.trim()
       : item.name || "";
 
-  // Filter, Sort ----------------------------------------------------------------------------------- /
+  // Get initial letter for avatar
+  const getInitial = (item) =>
+    (item.first_name || item.name || "?").charAt(0).toUpperCase();
+
+  // Filter + Sort
   const filteredLeads = useMemo(() => {
     return [...apiData]
       .filter((item) => {
+        const fullName = getDisplayName(item);
+        const searchTarget = { ...item, name: fullName };
         const matchesSearch =
           !debouncedSearchText ||
-          Object.values(item).some((val) =>
+          Object.values(searchTarget).some((val) =>
             String(val)
               .toLowerCase()
               .includes(debouncedSearchText.toLowerCase()),
@@ -196,6 +173,7 @@ const Tabel = ({
       });
   }, [apiData, debouncedSearchText, nameSort, dateSort, selectedFilter]);
 
+  // Checkbox
   const handleCheckbox = (id) =>
     setSelectedIds((p) =>
       p.includes(id) ? p.filter((i) => i !== id) : [...p, id],
@@ -207,6 +185,26 @@ const Tabel = ({
     setSelectedIds(allSelected ? [] : visibleIds);
   };
 
+  // Bulk delete
+  const handleBulkDelete = async () => {
+    try {
+      await Promise.all(
+        selectedIds.map((id) =>
+          axios.delete(`http://localhost:5000${endpoint}/${id}`),
+        ),
+      );
+      setSelectedIds([]);
+      fetchAPI();
+      triggerNotification?.(
+        "success",
+        "Selected records deleted successfully.",
+      );
+    } catch (error) {
+      triggerNotification?.("error", "Failed to delete selected records.");
+    }
+  };
+
+  // Infinite scroll
   const handleScroll = () => {
     const el = tableRef.current;
     if (!el) return;
@@ -214,6 +212,7 @@ const Tabel = ({
       setVisibleCount((p) => (p >= filteredLeads.length ? p : p + 10));
   };
 
+  // Avatar colors
   const colors = [
     "bg-red-50 text-red-700 border",
     "bg-green-50 text-green-700 border",
@@ -222,6 +221,24 @@ const Tabel = ({
     "bg-pink-50 text-pink-700 border",
   ];
 
+  // Status badge color
+  const getStatusColor = (status) => {
+    const map = {
+      Completed: "bg-green-50 text-green-700",
+      Dropped: "bg-red-50 text-red-700",
+      Active: "bg-green-50 text-green-700",
+      Inactive: "bg-red-50 text-red-700",
+      Blocked: "bg-gray-100 text-gray-600",
+      Scheduled: "bg-blue-50 text-blue-700",
+      Cancelled: "bg-red-50 text-red-700",
+      completed: "bg-green-50 text-green-700",
+      pending: "bg-amber-50 text-amber-700",
+      cancelled: "bg-red-50 text-red-700",
+    };
+    return map[status] || "bg-amber-50 text-amber-700";
+  };
+
+  // CSV template download
   const downloadCSVBtn = () => {
     const headers = tableHead.map((h) => `"${h.title.trim()}"`).join(",");
     const blob = new Blob([headers], { type: "text/csv;charset=utf-8;" });
@@ -235,34 +252,68 @@ const Tabel = ({
     URL.revokeObjectURL(url);
   };
 
-  const fullPageWrapper =
-    "w-full h-[calc(100vh-120px)] bg-white border border-gray-100 rounded-xl shadow-xl shadow-gray-200 p-6 overflow-hidden";
+  // Render cell value
+  const renderCell = (column, item, index) => {
+    const value = item[column.key];
 
-  if (showUserCreate) {
-    return (
-      <div className={fullPageWrapper}>
-        <UserCreate
-          onBack={() => setShowUserCreate(false)}
-          triggerNotification={triggerNotification}
-        />
-      </div>
-    );
-  }
+    // Name column — show avatar + full name
+    if (column.key === "name" || column.key === "first_name") {
+      const fullName = getDisplayName(item);
+      const initial = getInitial(item);
+      return (
+        <div className="flex gap-3 items-center">
+          <div
+            className={`h-9 w-9 flex items-center justify-center text-sm font-semibold rounded-full ${colors[index % colors.length]}`}
+          >
+            {initial}
+          </div>
+          <span className="font-medium text-gray-800 whitespace-nowrap">
+            {fullName || "-"}
+          </span>
+        </div>
+      );
+    }
 
-  if (showUserEdit) {
-    return (
-      <div className={fullPageWrapper}>
-        <UserEdit
-          user={editingUser}
-          onBack={() => {
-            setShowUserEdit(false);
-            setEditingUser(null);
-          }}
-          triggerNotification={triggerNotification}
-        />
-      </div>
-    );
-  }
+    // Status badge
+    if (column.key === "status") {
+      return (
+        <span
+          className={`px-2.5 py-1 text-xs font-medium rounded-full ${getStatusColor(value)}`}
+        >
+          {value}
+        </span>
+      );
+    }
+
+    // Deal value
+    if (column.key === "dealValue") {
+      return <span className="font-semibold text-green-600">₹{value}</span>;
+    }
+
+    // Access array (Users module)
+    if (column.key === "access") {
+      const modules = Array.isArray(value) ? value : String(value).split(",");
+      return (
+        <div className="flex flex-wrap gap-1 max-w-55">
+          {modules.map((item) => (
+            <span
+              key={item}
+              className="px-2 py-1 text-xs rounded-full bg-primary-50 text-primary-700"
+            >
+              {item.trim()}
+            </span>
+          ))}
+        </div>
+      );
+    }
+
+    // Date columns
+    if (column.type === "date" || column.key === "lastLogin") {
+      return formatDate(value);
+    }
+
+    return value ?? "-";
+  };
 
   return (
     <div>
@@ -279,9 +330,8 @@ const Tabel = ({
             <p className="text-sm text-gray-500">{subtitle}</p>
           </div>
 
-          {/* Table Header Actions */}
           <div className="flex gap-3">
-            {/* Search Field */}
+            {/* Search */}
             <div className="relative">
               <div className="absolute top-2.5 left-2">
                 <HugeiconsIcon icon={Search01Icon} size={17} color="#747474" />
@@ -295,7 +345,7 @@ const Tabel = ({
               />
             </div>
 
-            {/* Filter Button */}
+            {/* Filter */}
             <div className="relative">
               <button
                 type="button"
@@ -320,7 +370,7 @@ const Tabel = ({
               )}
             </div>
 
-            {/* Upload Button */}
+            {/* Upload */}
             <button
               onClick={() => setUploadModal(true)}
               className="bg-white hover:bg-gray-50 text-gray-500 font-medium flex items-center gap-1.5 border border-gray-200 transition text-sm px-4 py-2 rounded-lg"
@@ -329,11 +379,9 @@ const Tabel = ({
               <HugeiconsIcon icon={Upload06Icon} size={18} strokeWidth={2} />
             </button>
 
-            {/* Add Button */}
+            {/* Add */}
             <button
-              onClick={() =>
-                module === "user" ? setShowUserCreate(true) : setAddModal(true)
-              }
+              onClick={() => setAddModal(true)}
               className="bg-primary-700 hover:bg-primary-800 transition text-white text-sm font-medium px-4 py-2 rounded-lg"
             >
               + Add
@@ -365,7 +413,6 @@ const Tabel = ({
           className="h-130 scroll-auto overflow-auto"
         >
           <table className="w-full text-sm text-nowrap">
-            {/* Table Head */}
             <thead className="bg-primary-50 sticky top-0 z-10">
               <tr className="text-left text-gray-500 border-b border-gray-200">
                 <th className="p-2 pl-6 w-10">
@@ -386,7 +433,8 @@ const Tabel = ({
                     <div
                       className={`flex items-center gap-1 ${head.sortable ? "cursor-pointer" : ""}`}
                       onClick={() => {
-                        if (head.key === "name") sortNameLeads();
+                        if (head.key === "name" || head.key === "first_name")
+                          sortNameLeads();
                         if (head.key === "createdAt") sortDateLeads();
                       }}
                     >
@@ -405,15 +453,17 @@ const Tabel = ({
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody>
               {loading ? (
                 <tr>
                   <td
                     colSpan={tableHead.length + 2}
-                    className="text-center py-10 text-gray-400"
+                    className="text-center py-10"
                   >
-                    Loading...
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="h-8 w-8 rounded-full border-4 border-primary-200 border-t-primary-600 animate-spin" />
+                      <p className="text-gray-400 text-sm">Loading...</p>
+                    </div>
                   </td>
                 </tr>
               ) : error ? (
@@ -447,100 +497,17 @@ const Tabel = ({
                     </td>
 
                     {tableHead.map((column) => (
-                      <td
-                        key={column.key}
-                        className={`py-4 pl-4 text-gray-600 ${
-                          column.key === "createdAt" ||
-                          column.key === "lastLogin"
-                            ? "whitespace-nowrap min-w-35"
-                            : ""
-                        }`}
-                      >
-                        {column.key === "name" ? (
-                          (() => {
-                            // Some modules (leads) store first_name/last_name
-                            // separately; others may use a single name field.
-                            // Combine whichever is present so the avatar and
-                            // label always have a value to render.
-                            const fullName = lead.first_name
-                              ? `${lead.first_name} ${lead.last_name || ""}`.trim()
-                              : lead.name || "";
-                            const initial = (
-                              lead.first_name ||
-                              lead.name ||
-                              "?"
-                            )
-                              .charAt(0)
-                              .toUpperCase();
-
-                            return (
-                              <div className="flex gap-3 items-center">
-                                <div
-                                  className={`h-9 w-9 flex items-center justify-center text-sm font-semibold rounded-full ${colors[index % colors.length]}`}
-                                >
-                                  {initial}
-                                </div>
-                                <span className="font-medium text-gray-800 whitespace-nowrap">
-                                  {fullName || "-"}
-                                </span>
-                              </div>
-                            );
-                          })()
-                        ) : column.key === "status" ? (
-                          <span
-                            className={`px-2.5 py-1 text-xs font-medium rounded-full ${
-                              lead.status === "Completed"
-                                ? "bg-green-50 text-green-700"
-                                : lead.status === "Dropped"
-                                  ? "bg-red-50 text-red-700"
-                                  : "bg-amber-50 text-amber-700"
-                            }`}
-                          >
-                            {lead.status}
-                          </span>
-                        ) : column.key === "dealValue" ? (
-                          <span className="font-semibold text-green-600">
-                            ₹{lead.dealValue}
-                          </span>
-                        ) : column.key === "access" ? (
-                          <div className="flex flex-wrap gap-1 max-w-55">
-                            {(Array.isArray(lead.access)
-                              ? lead.access
-                              : String(lead.access).split(",")
-                            ).map((item) => (
-                              <span
-                                key={item}
-                                className="px-2 py-1 text-xs rounded-full bg-primary-50 text-primary-700"
-                              >
-                                {item.trim()}
-                              </span>
-                            ))}
-                          </div>
-                        ) : column.key === "createdAt" ? (
-                          formatDate(lead.createdAt)
-                        ) : column.key === "lastLogin" ? (
-                          formatDate(lead.lastLogin)
-                        ) : column.type === "date" ? (
-                          formatDate(lead[column.key])
-                        ) : (
-                          (lead[column.key] ?? "-")
-                        )}
+                      <td key={column.key} className="py-4 pl-4 text-gray-600">
+                        {renderCell(column, lead, index)}
                       </td>
                     ))}
 
-                    {/* Row action button */}
                     <td className="py-4 pl-4">
                       <div className="flex gap-2 items-center">
-                        {/* Edit Action */}
                         <div
                           onClick={() => {
-                            if (module === "user") {
-                              setEditingUser(lead);
-                              setShowUserEdit(true);
-                            } else {
-                              setSelectedLead(lead);
-                              setEditModal(true);
-                            }
+                            setSelectedLead(lead);
+                            setEditModal(true);
                           }}
                           className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary-50 hover:bg-primary-100 cursor-pointer"
                         >
@@ -550,8 +517,6 @@ const Tabel = ({
                             color="#534ab7"
                           />
                         </div>
-
-                        {/* View Action */}
                         <div
                           onClick={() => {
                             setSelectedLead(lead);
@@ -565,8 +530,6 @@ const Tabel = ({
                             color="#0F766E"
                           />
                         </div>
-
-                        {/* Delete Action */}
                         <div
                           onClick={() => {
                             setDeleteLeadId(lead._id);
@@ -603,37 +566,32 @@ const Tabel = ({
       </section>
 
       <AddModal
+        module={module}
         isOpen={addModal}
         onClose={() => setAddModal(false)}
-        fields={fields}
-        endpoint={endpoint}
         onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
-
       <EditModal
         isOpen={editModal}
         onClose={() => setEditModal(false)}
-        lead={selectedLead}
-        endpoint={endpoint}
-        fields={fields}
+        module={module}
+        record={selectedLead}
         onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
-      
       <DeleteModal
         isOpen={deleteModal}
         onClose={() => setDeleteModal(false)}
+        module={module}
         deleteID={deleteLeadId}
-        endpoint={endpoint}
         onSuccess={fetchAPI}
         triggerNotification={triggerNotification}
       />
-
       <ViewModal
+        lead={selectedLead}
         isOpen={viewModal}
         onClose={() => setViewModal(false)}
-        lead={selectedLead}
         onEdit={() => {
           setViewModal(false);
           setEditModal(true);
@@ -648,4 +606,4 @@ const Tabel = ({
   );
 };
 
-export default Tabel;
+export default Table;

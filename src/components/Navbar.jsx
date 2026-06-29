@@ -23,7 +23,7 @@ const Navbar = () => {
     "/deals": "Deals",
     "/activity": "Activity",
     "/appointment": "Appointment",
-    "/users" : "Users",
+    "/users": "Users",
     "/notification": "Notification",
     "/settings": "Settings",
   };
@@ -31,13 +31,13 @@ const Navbar = () => {
   const title = routeTitleMap[location.pathname];
 
   // -- Notifications ----------------------------------------------------------------------------------------------
-  const notificationData = useSelector(
-    (state) => state.modules.notificationData || [],
-  );
+  // const notificationData = useSelector(
+  //   (state) => state.modules.notificationData || [],
+  // );
 
-  const unreadCount = notificationData.filter(
-    (item) => item && !item.isRead,
-  ).length;
+  // const unreadCount = notificationData.filter(
+  //   (item) => item && !item.isRead,
+  // ).length;
 
   // --- Logged User -----------------------------------------------------------------------------------------------
   const loggedUser = JSON.parse(localStorage.getItem("loggedUser")) || {};
@@ -51,6 +51,7 @@ const Navbar = () => {
 
   // --- Logout ------------------------------------------------------------------------------------------------------
   const handleLogout = () => {
+    localStorage.removeItem("token");
     localStorage.removeItem("loggedUser");
     navigate("/");
   };
@@ -74,11 +75,11 @@ const Navbar = () => {
             onClick={() => navigate("/notification")}
           >
             <HugeiconsIcon icon={Notification01FreeIcons} size={20} />
-            {unreadCount > 0 && (
+            {/* {unreadCount > 0 && (
               <span className="absolute -top-1 -right-2 min-w-4 h-4 px-1 flex items-center justify-center text-xs bg-red-600 text-white rounded-full">
                 {unreadCount > 99 ? "99+" : unreadCount}
               </span>
-            )}
+            )} */}
           </div>
 
           {/* Profile Trigger */}
@@ -149,7 +150,7 @@ const Navbar = () => {
       {/* Profile Modal */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-[100]"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-100"
           onClick={() => setShowProfileModal(false)}
         >
           <div

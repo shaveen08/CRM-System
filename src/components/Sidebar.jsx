@@ -18,54 +18,49 @@ const Sidebar = () => {
   const sidebarList = [
     {
       id: 1,
-      menuName: "Dashboard",
+      menuName: "dashboard",
       path: "/dashboard",
       icon: <HugeiconsIcon icon={DashboardSquare01FreeIcons} size={20} />,
     },
     {
       id: 2,
-      menuName: "Lead",
-      path: "/lead",
+      menuName: "leads",
+      path: "/leads",
       icon: <HugeiconsIcon icon={UserGroupIcon} size={20} />,
     },
     {
       id: 3,
-      menuName: "Contacts",
+      menuName: "contacts",
       path: "/contacts",
       icon: <HugeiconsIcon icon={ContactIcon} size={20} />,
     },
     {
       id: 4,
-      menuName: "Activity",
-      path: "/activity",
+      menuName: "activities",
+      path: "/activities",
       icon: <HugeiconsIcon icon={Activity03Icon} size={20} />,
     },
     {
       id: 5,
-      menuName: "Appointment",
-      path: "/appointment",
+      menuName: "appointments",
+      path: "/appointments",
       icon: <HugeiconsIcon icon={Calendar03Icon} size={20} />,
     },
     {
       id: 6,
-      menuName: "Users",
+      menuName: "users",
       path: "/users",
       icon: <HugeiconsIcon icon={UserIcon} size={20} />,
     },
-    // {
-    //   id: 5,
-    //   menuName: "Reminder",
-    //   path: "/reminder",
-    //   icon: <HugeiconsIcon icon={CheckListIcon} size={20} />,
-    // },
-    // {
-    //   id: 6,
-    //   menuName: "Settings",
-    //   path: "/settings",
-    //   icon: <HugeiconsIcon icon={Settings02Icon} size={20} />,
-    // },
   ];
 
+  // Module Access
+  const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+  const userAccess = loggedUser?.access || [];
+
+  const filteredList = sidebarList.filter(
+    (item) => userAccess.includes(item.menuName),
+  );
   return (
     <div className="fixed left-0 h-full w-60 flex flex-col gap-4 bg-white border-r border-gray-300">
       {/* Header */}
@@ -75,7 +70,7 @@ const Sidebar = () => {
 
       {/* Sidebar Menu */}
       <main className="flex flex-col gap-2 p-4">
-        {sidebarList.map((list) => (
+        {filteredList.map((list) => (
           <NavLink
             key={list.id}
             to={list.path}

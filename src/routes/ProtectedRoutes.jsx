@@ -1,9 +1,24 @@
 import React from "react";
-import { Outlet, Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 
-const ProtectedRoutes = () => {
-  const user = localStorage.getItem("loggedUser");
-  return user ? <Outlet /> : <Navigate to="/" />;
+const ProtectedRoutes = ({ permission }) => {
+  const token = localStorage.getItem("token");
+
+  if (!token) {
+    return <Navigate to="/" replace />;
+  }
+
+  const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
+
+  if (!loggedUser) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (permission && !loggedUser.access?.includes(permission)) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoutes;

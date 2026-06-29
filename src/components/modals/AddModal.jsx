@@ -1,27 +1,30 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
-import axios from "axios";
+import { formConfig } from "../../config/formFields";
+import DynamicField from "../from/dynamicField";
+import api from "../../api/axios";
 
 const AddModal = ({
   isOpen,
   onClose,
-  fields,
-  endpoint, // API endpoint this modal posts to — makes the modal reusable across modules
-  onSuccess, // called after a successful save, so the parent (e.g. Tabel) can refetch its list
+  module,
+  onSuccess,
   triggerNotification,
 }) => {
-  const initialForm = useMemo(
-    () =>
-      fields.reduce(
-        (acc, field) => ({
-          ...acc,
-          [field.name]: "",
-        }),
-        {},
-      ),
-    [fields],
-  );
+  // dynamic form config file
+  const config = formConfig[module];
+
+  const fields = config.fields;
+  const endpoint = config.endpoint;
+  const title = config.title;
+
+  const initialForm = useMemo(() => {
+    return fields.reduce((acc, field) => {
+      acc[field.name] = field.defaultValue;
+      return acc;
+    }, {});
+  }, [fields]);
 
   const [formData, setFormData] = useState(initialForm);
   const [submitting, setSubmitting] = useState(false);
@@ -34,8 +37,21 @@ const AddModal = ({
   }, [isOpen, initialForm]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type, checked } = e.target;
+
+    if (type === "checkbox") {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: checked
+          ? [...(prev[name] || []), value]
+          : prev[name].filter((item) => item !== value),
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -62,10 +78,7 @@ const AddModal = ({
     };
 
     try {
-      // POST directly to the endpoint passed in — e.g. "http://localhost:5000/api/leads"
-      // No hardcoded URL here, so this modal works for any module just by
-      // changing the endpoint/fields props.
-      await axios.post(endpoint, leadData);
+      await api.post(endpoint, leadData);
 
       triggerNotification?.({
         type: "success",
@@ -73,7 +86,7 @@ const AddModal = ({
         duration: 3000,
       });
       setFormData(initialForm);
-      onSuccess?.(); // tells the parent to refetch its table data
+      onSuccess?.();
       onClose();
     } catch (err) {
       console.error("Add failed:", err.response?.data || err.message);
@@ -124,44 +137,22 @@ const AddModal = ({
             className="grid grid-cols-1 md:grid-cols-2 gap-5"
           >
             {fields.map((field) => (
-              <div key={field.name}>
+              <div
+                key={field.name}
+                className={field.colSpan === 12 ? "md:col-span-2" : ""}
+              >
                 <label
                   htmlFor={field.name}
-                  className="block text-xs font-medium text-gray-600 mb-1.5"
+                  className="mb-2 block text-xs font-medium text-gray-600"
                 >
                   {field.label}
                 </label>
 
-                {field.type === "select" ? (
-                  <select
-                    id={field.name}
-                    name={field.name}
-                    value={formData[field.name] || ""}
-                    onChange={handleChange}
-                    required
-                    className="h-11 w-full text-sm border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500 text-gray-700"
-                  >
-                    <option value="" disabled>
-                      Select {field.label}
-                    </option>
-                    {field.options?.map((opt) => (
-                      <option key={opt} value={opt}>
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                ) : (
-                  <input
-                    id={field.name}
-                    type={field.type}
-                    name={field.name}
-                    value={formData[field.name] || ""}
-                    onChange={handleChange}
-                    placeholder={field.label}
-                    required
-                    className="h-11 w-full text-sm border border-gray-300 rounded-lg px-3 outline-none focus:border-primary-500"
-                  />
-                )}
+                <DynamicField
+                  field={field}
+                  value={formData[field.name]}
+                  onChange={handleChange}
+                />
               </div>
             ))}
 

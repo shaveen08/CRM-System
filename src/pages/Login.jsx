@@ -9,6 +9,7 @@ import React, { useState } from "react";
 import { useFormik } from "formik";
 import { useNavigate, Link } from "react-router-dom";
 import { useSelector } from "react-redux";
+import axios from "axios";
 
 const Login = () => {
   const [error, setError] = useState({});
@@ -16,8 +17,7 @@ const Login = () => {
 
   const navigate = useNavigate();
 
-  const userData = useSelector((state) => state.modules.userData || []);
-
+  // Validation --------------------------------------------------------------------------------------------------------------------------- /
   const validate = (values) => {
     const errors = {};
 
@@ -31,51 +31,48 @@ const Login = () => {
 
     if (!values.password) {
       errors.password = "Field cannot be blank.";
-    } else if (!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(values.password)) {
-      errors.password = "Password must be 8+ characters and include uppercase, lowercase, number, and special character.";
+    } else if (
+      !/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(
+        values.password,
+      )
+    ) {
+      errors.password =
+        "Password must be 8+ characters and include uppercase, lowercase, number, and special character.";
     }
 
     return errors;
   };
 
+  // Form Submit --------------------------------------------------------------------------------------------------------------------------- /
   const formik = useFormik({
     initialValues: {
       email: "",
       password: "",
     },
     validate,
-    onSubmit: (values, { resetForm }) => {
+    onSubmit: async (values, { resetForm }) => {
       try {
         setLoading(true);
 
-        const user = userData.find(
-          (user) =>
-            user.email.toLowerCase() === values.email.toLowerCase() &&
-            user.password === values.password,
+        const response = await axios.post(
+          "http://localhost:5000/api/auth/login",
+          values,
         );
 
-        if (!user) {
+        if (response.data.user.status !== "Active") {
           setError({
-            auth: "Invalid Email or Password",
+            auth: "Your account is deactivated. Contact administrator.",
           });
           return;
         }
 
-        if (user.status !== "Active") {
-          setError({
-            auth: "Your account has been deactivated. Contact administrator.",
-          });
-          return;
-        }
-
-        localStorage.setItem("loggedUser", JSON.stringify(user));
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("loggedUser", JSON.stringify(response.data.user));
 
         setError({});
         resetForm();
 
         navigate("/dashboard");
-
-        console.log("Login Successful:", user);
       } catch (err) {
         console.error(err);
 
