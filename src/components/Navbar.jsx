@@ -6,29 +6,38 @@ import {
   Mail01Icon,
   UserAccountIcon,
   OfficeIcon,
+  Menu01Icon,
 } from "@hugeicons/core-free-icons";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useSidebar } from "./SidebarContext";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { toggle } = useSidebar();
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showProfileModal, setShowProfileModal] = useState(false);
 
   const routeTitleMap = {
     "/dashboard": "Dashboard",
-    "/lead": "Lead",
-    "/deals": "Deals",
-    "/activity": "Activity",
-    "/appointment": "Appointment",
+    "/leads": "Leads",
+    "/contacts": "Contacts",
+    "/activities": "Activities",
+    "/appointments": "Appointments",
     "/users": "Users",
     "/notification": "Notification",
-    "/settings": "Settings",
   };
 
-  const title = routeTitleMap[location.pathname];
+  // Fallback: if a route isn't in the map above, derive a readable title
+  // from the URL itself instead of showing nothing (e.g. "/deals" -> "Deals").
+  const title =
+    routeTitleMap[location.pathname] ||
+    location.pathname
+      .replace("/", "")
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
 
   // -- Notifications ----------------------------------------------------------------------------------------------
   // const notificationData = useSelector(
@@ -63,12 +72,21 @@ const Navbar = () => {
 
   return (
     <>
-      <div className="fixed top-0 left-60 right-0 h-15.25 border-b border-gray-300 bg-white flex items-center justify-between p-4 z-50">
-        {/* Page Title */}
-        <h4 className="text-md font-semibold">{title}</h4>
+      <div className="fixed top-0 left-0 lg:left-60 right-0 h-15.25 border-b border-gray-300 bg-white flex items-center justify-between p-4 z-40">
+        {/* Left Section: Hamburger (mobile/tablet) + Page Title */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={toggle}
+            className="lg:hidden h-10 w-10 flex items-center justify-center border border-gray-300 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors"
+            aria-label="Toggle menu"
+          >
+            <HugeiconsIcon icon={Menu01Icon} size={20} />
+          </button>
+          <h4 className="text-md font-semibold truncate">{title}</h4>
+        </div>
 
         {/* Right Section */}
-        <div className="flex gap-2 items-center">
+        <div className="flex gap-2 items-center shrink-0">
           {/* Notification */}
           <div
             className="relative h-10 w-10 flex items-center justify-center border border-gray-300 rounded-xl cursor-pointer"
@@ -126,16 +144,6 @@ const Navbar = () => {
                 </button>
 
                 <button
-                  className="w-full text-left px-4 py-3 text-sm hover:bg-gray-50 transition-colors"
-                  onClick={() => {
-                    navigate("/settings");
-                    setShowProfileMenu(false);
-                  }}
-                >
-                  Settings
-                </button>
-
-                <button
                   className="w-full text-left px-4 py-3 text-sm text-red-500 hover:bg-red-50 transition-colors"
                   onClick={handleLogout}
                 >
@@ -150,7 +158,7 @@ const Navbar = () => {
       {/* Profile Modal */}
       {showProfileModal && (
         <div
-          className="fixed inset-0 bg-black/40 flex items-center justify-center z-100"
+          className="fixed inset-0 bg-black/40 flex items-center justify-center z-100 p-4"
           onClick={() => setShowProfileModal(false)}
         >
           <div
@@ -194,7 +202,7 @@ const Navbar = () => {
             <div className="space-y-3">
               {/* Email */}
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-blue-50 rounded-lg flex items-center justify-center shrink-0">
                   <HugeiconsIcon
                     icon={Mail01Icon}
                     size={15}
@@ -202,16 +210,18 @@ const Navbar = () => {
                     strokeWidth={1.8}
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-gray-400">Email</p>
-                  <p className="text-sm font-medium">{loggedUser.email}</p>
+                  <p className="text-sm font-medium truncate">
+                    {loggedUser.email}
+                  </p>
                 </div>
               </div>
 
               {/* Department */}
               {loggedUser.department && (
                 <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                  <div className="h-8 w-8 bg-purple-50 rounded-lg flex items-center justify-center">
+                  <div className="h-8 w-8 bg-purple-50 rounded-lg flex items-center justify-center shrink-0">
                     <HugeiconsIcon
                       icon={OfficeIcon}
                       size={15}
@@ -219,9 +229,9 @@ const Navbar = () => {
                       strokeWidth={1.8}
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-xs text-gray-400">Department</p>
-                    <p className="text-sm font-medium">
+                    <p className="text-sm font-medium truncate">
                       {loggedUser.department}
                     </p>
                   </div>
@@ -230,7 +240,7 @@ const Navbar = () => {
 
               {/* Role */}
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
-                <div className="h-8 w-8 bg-orange-50 rounded-lg flex items-center justify-center">
+                <div className="h-8 w-8 bg-orange-50 rounded-lg flex items-center justify-center shrink-0">
                   <HugeiconsIcon
                     icon={UserAccountIcon}
                     size={15}
@@ -238,9 +248,11 @@ const Navbar = () => {
                     strokeWidth={1.8}
                   />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <p className="text-xs text-gray-400">Role</p>
-                  <p className="text-sm font-medium">{loggedUser.role}</p>
+                  <p className="text-sm font-medium truncate">
+                    {loggedUser.role}
+                  </p>
                 </div>
               </div>
             </div>

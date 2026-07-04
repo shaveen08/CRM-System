@@ -28,6 +28,7 @@ const Table = ({ module, triggerNotification }) => {
   const title = formConfig[module].title;
   const subtitle = formConfig[module].subtitle;
   const filter = formConfig[module].filter;
+  const filterKey = formConfig[module].filterKey || "status";
 
   // API
   const [apiData, setApiData] = useState([]);
@@ -153,7 +154,8 @@ const Table = ({ module, triggerNotification }) => {
               .includes(debouncedSearchText.toLowerCase()),
           );
         const matchesFilter =
-          selectedFilter.length === 0 || selectedFilter.includes(item.status);
+          selectedFilter.length === 0 ||
+          selectedFilter.includes(item[filterKey]);
         return matchesSearch && matchesFilter;
       })
       .sort((a, b) => {
@@ -171,7 +173,14 @@ const Table = ({ module, triggerNotification }) => {
             : new Date(b.createdAt) - new Date(a.createdAt);
         return 0;
       });
-  }, [apiData, debouncedSearchText, nameSort, dateSort, selectedFilter]);
+  }, [
+    apiData,
+    debouncedSearchText,
+    nameSort,
+    dateSort,
+    selectedFilter,
+    filterKey,
+  ]);
 
   // Checkbox
   const handleCheckbox = (id) =>
@@ -195,12 +204,17 @@ const Table = ({ module, triggerNotification }) => {
       );
       setSelectedIds([]);
       fetchAPI();
-      triggerNotification?.(
-        "success",
-        "Selected records deleted successfully.",
-      );
+      triggerNotification?.({
+        type: "success",
+        message: "Selected records deleted successfully.",
+        duration: 3000,
+      });
     } catch (error) {
-      triggerNotification?.("error", "Failed to delete selected records.");
+      triggerNotification?.({
+        type: "error",
+        message: "Failed to delete selected records.",
+        duration: 3000,
+      });
     }
   };
 
@@ -330,9 +344,9 @@ const Table = ({ module, triggerNotification }) => {
             <p className="text-sm text-gray-500">{subtitle}</p>
           </div>
 
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             {/* Search */}
-            <div className="relative">
+            <div className="relative flex-1 min-w-40 sm:flex-none sm:min-w-0">
               <div className="absolute top-2.5 left-2">
                 <HugeiconsIcon icon={Search01Icon} size={17} color="#747474" />
               </div>
@@ -341,7 +355,7 @@ const Table = ({ module, triggerNotification }) => {
                 placeholder="Search..."
                 value={searchLead}
                 onChange={(e) => setSearchLead(e.target.value)}
-                className="bg-white border border-gray-200 rounded-lg px-3 pl-8 py-2 text-sm outline-none focus:border-primary-700"
+                className="w-full sm:w-auto bg-white border border-gray-200 rounded-lg px-3 pl-8 py-2 text-sm outline-none focus:border-primary-700"
               />
             </div>
 
@@ -350,7 +364,7 @@ const Table = ({ module, triggerNotification }) => {
               <button
                 type="button"
                 onClick={() => setFilterModal((p) => !p)}
-                className="px-4 h-full flex items-center gap-1 font-medium text-gray-500 text-sm bg-white hover:bg-gray-50 rounded-lg border border-gray-200"
+                className="px-4 h-full flex items-center gap-1 font-medium text-gray-500 text-sm bg-white hover:bg-gray-50 rounded-lg border border-gray-200 whitespace-nowrap"
               >
                 Filter
                 {selectedFilter.length > 0 && (
@@ -373,7 +387,7 @@ const Table = ({ module, triggerNotification }) => {
             {/* Upload */}
             <button
               onClick={() => setUploadModal(true)}
-              className="bg-white hover:bg-gray-50 text-gray-500 font-medium flex items-center gap-1.5 border border-gray-200 transition text-sm px-4 py-2 rounded-lg"
+              className="bg-white hover:bg-gray-50 text-gray-500 font-medium flex items-center gap-1.5 border border-gray-200 transition text-sm px-4 py-2 rounded-lg whitespace-nowrap"
             >
               Upload
               <HugeiconsIcon icon={Upload06Icon} size={18} strokeWidth={2} />
@@ -382,7 +396,7 @@ const Table = ({ module, triggerNotification }) => {
             {/* Add */}
             <button
               onClick={() => setAddModal(true)}
-              className="bg-primary-700 hover:bg-primary-800 transition text-white text-sm font-medium px-4 py-2 rounded-lg"
+              className="bg-primary-700 hover:bg-primary-800 transition text-white text-sm font-medium px-4 py-2 rounded-lg whitespace-nowrap"
             >
               + Add
             </button>
@@ -391,14 +405,14 @@ const Table = ({ module, triggerNotification }) => {
 
         {/* Bulk delete bar */}
         {selectedIds.length > 0 && (
-          <div className="flex items-center justify-between px-4 py-2 bg-primary-50 border-b border-primary-100">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-2 bg-primary-50 border-b border-primary-100">
             <span className="text-sm text-primary-700 font-medium">
               {selectedIds.length} record{selectedIds.length > 1 ? "s" : ""}{" "}
               selected
             </span>
             <button
               onClick={handleBulkDelete}
-              className="flex items-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition"
+              className="flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-medium px-3 py-1.5 rounded-lg transition self-start sm:self-auto"
             >
               <HugeiconsIcon icon={Delete02Icon} size={14} color="#fff" />
               Delete Selected ({selectedIds.length})

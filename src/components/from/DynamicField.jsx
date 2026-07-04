@@ -8,9 +8,7 @@ const textareaClass =
 
 const DynamicField = ({ field, value, onChange }) => {
   switch (field.type) {
-    // ==========================
     // INPUT TYPES
-    // ==========================
     case "text":
     case "email":
     case "password":
@@ -31,9 +29,7 @@ const DynamicField = ({ field, value, onChange }) => {
         />
       );
 
-    // ==========================
     // SELECT
-    // ==========================
     case "select":
       return (
         <select
@@ -57,9 +53,7 @@ const DynamicField = ({ field, value, onChange }) => {
         </select>
       );
 
-    // ==========================
     // TEXTAREA
-    // ==========================
     case "textarea":
       return (
         <textarea
@@ -74,9 +68,7 @@ const DynamicField = ({ field, value, onChange }) => {
         />
       );
 
-    // ==========================
     // CHECKBOX GROUP
-    // ==========================
     case "checkbox":
       return (
         <div className="grid grid-cols-2 gap-3 rounded-lg border border-gray-300 p-4">

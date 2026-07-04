@@ -2,6 +2,7 @@ import React from "react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import Table from "./Table";
+import { SidebarProvider } from "./SidebarContext";
 import useNotification from "../utils/useNotification";
 
 const ModulePage = ({ title, subtitle, module, filter, endpoint }) => {
@@ -9,16 +10,19 @@ const ModulePage = ({ title, subtitle, module, filter, endpoint }) => {
     useNotification("top-right");
 
   return (
-    <div className="flex h-screen w-full">
-      {NotificationComponent}
-      <Sidebar />
-      <div className="flex flex-col w-full ml-60 pt-16 overflow-hidden">
-        <Navbar />
-        <div className="p-4 flex flex-col gap-6">
-          <Table module={module} triggerNotification={triggerNotification} />
+    <SidebarProvider>
+      <div className="flex h-screen w-full bg-gray-50">
+        {NotificationComponent}
+        <Sidebar />
+        
+        <div className="flex flex-col w-full ml-0 lg:ml-60 pt-16 overflow-y-auto">
+          <Navbar />
+          <div className="p-3 sm:p-4 flex flex-col gap-6">
+            <Table module={module} triggerNotification={triggerNotification} />
+          </div>
         </div>
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

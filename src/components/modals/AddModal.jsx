@@ -76,7 +76,7 @@ const AddModal = ({
         lastContacted: createdDate,
       }),
     };
-
+    console.log(leadData)//--------------------------------------//
     try {
       await api.post(endpoint, leadData);
 

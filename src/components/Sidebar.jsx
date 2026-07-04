@@ -9,12 +9,14 @@ import {
   UserIcon,
   ContactIcon,
   Calendar03Icon,
+  Cancel01Icon,
 } from "@hugeicons/core-free-icons";
-import { useState } from "react";
 import { NavLink } from "react-router-dom";
-import Navbar from "./Navbar";
+import { useSidebar } from "./SidebarContext";
 
 const Sidebar = () => {
+  const { isOpen, close } = useSidebar();
+
   const sidebarList = [
     {
       id: 1,
@@ -54,40 +56,60 @@ const Sidebar = () => {
     },
   ];
 
-  // Module Access
   const loggedUser = JSON.parse(localStorage.getItem("loggedUser"));
   const userAccess = loggedUser?.access || [];
 
-  const filteredList = sidebarList.filter(
-    (item) => userAccess.includes(item.menuName),
+  const filteredList = sidebarList.filter((item) =>
+    userAccess.includes(item.menuName),
   );
-  return (
-    <div className="fixed left-0 h-full w-60 flex flex-col gap-4 bg-white border-r border-gray-300">
-      {/* Header */}
-      <header className="border-b border-gray-300 pb-4 p-4">
-        <h2 className="text-lg font-bold">CRM System</h2>
-      </header>
 
-      {/* Sidebar Menu */}
-      <main className="flex flex-col gap-2 p-4">
-        {filteredList.map((list) => (
-          <NavLink
-            key={list.id}
-            to={list.path}
-            className={({ isActive }) =>
-              `flex items-center gap-3 p-3 text-gray-500 rounded-lg transition ${
-                isActive
-                  ? "bg-primary-200 text-gray-900 font-bold"
-                  : "hover:bg-primary-100"
-              }`
-            }
+  return (
+    <>
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+          onClick={close}
+          aria-hidden="true"
+        />
+      )}
+
+      <div
+        className={`fixed left-0 top-0 h-full w-60 flex flex-col gap-4 bg-white border-r border-gray-300 z-50
+          transform transition-transform duration-300 ease-in-out
+          ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
+      >
+        <header className="border-b border-gray-300 pb-4 p-4 flex items-center justify-between">
+          <h2 className="text-lg font-bold">CRM System</h2>
+          <button
+            onClick={close}
+            className="lg:hidden h-8 w-8 flex items-center justify-center rounded-lg hover:bg-gray-100 text-gray-500 hover:text-black transition-colors"
+            aria-label="Close menu"
           >
-            {list.icon}
-            <span className="text-sm font-medium">{list.menuName}</span>
-          </NavLink>
-        ))}
-      </main>
-    </div>
+            <HugeiconsIcon icon={Cancel01Icon} size={18} />
+          </button>
+        </header>
+
+        <main className="flex flex-col gap-2 p-4 overflow-y-auto">
+          {filteredList.map((list) => (
+            <NavLink
+              key={list.id}
+              to={list.path}
+              onClick={close}
+              className={({ isActive }) =>
+                `flex items-center gap-3 p-3 text-gray-500 rounded-lg transition ${
+                  isActive
+                    ? "bg-primary-200 text-gray-900 font-bold"
+                    : "hover:bg-primary-100"
+                }`
+              }
+            >
+              {list.icon}
+              <span className="text-sm font-medium">{list.menuName}</span>
+            </NavLink>
+          ))}
+        </main>
+      </div>
+    </>
   );
 };
 

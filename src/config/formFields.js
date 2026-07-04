@@ -2,6 +2,8 @@ export const formConfig = {
   leads: {
     title: "Lead",
     endpoint: "/api/leads",
+    filterKey: "status",
+    filter: ["Completed", "Confirmed", "Pending", "Dropped"],
 
     fields: [
       {
@@ -78,6 +80,9 @@ export const formConfig = {
     title: "Contact",
     endpoint: "/api/contacts",
 
+    filterKey: "status",
+    filter: ["Active", "Inactive", "Blocked"],
+
     fields: [
       {
         name: "name",
@@ -130,6 +135,8 @@ export const formConfig = {
   activities: {
     title: "Activity",
     endpoint: "/api/activity",
+    filterKey: "outcome",
+    filter: ["Interested", "Replied", "Positive", "Negative"],
 
     fields: [
       {
@@ -161,6 +168,9 @@ export const formConfig = {
   appointments: {
     title: "Appointment",
     endpoint: "/api/appointments",
+
+    filterKey: "status",
+    filter: ["Scheduled", "Completed"],
 
     fields: [
       {
@@ -215,6 +225,9 @@ export const formConfig = {
     title: "User",
     endpoint: "/api/users",
 
+    filterKey: "status",
+    filter: ["Active", "Inactive"],
+
     fields: [
       {
         name: "name",
@@ -241,6 +254,13 @@ export const formConfig = {
         colSpan: 12,
       },
       {
+        name: "phone",
+        label: "Phone",
+        type: "text",
+        defaultValue: "",
+        colSpan: 6,
+      },
+      {
         name: "role",
         label: "Role",
         type: "select",
@@ -257,6 +277,13 @@ export const formConfig = {
           "Support Agent",
           "Marketing Manager",
         ],
+      },
+      {
+        name: "department",
+        label: "Department",
+        type: "text",
+        defaultValue: "",
+        colSpan: 6,
       },
       {
         name: "status",
