@@ -2,7 +2,7 @@ import React from "react";
 import Navbar from "../components/Navbar";
 import Sidebar from "../components/Sidebar";
 import { useDispatch, useSelector } from "react-redux";
-import { markNotificationRead } from "../redux/actions/modulesAction";
+import { markNotificationRead } from "../redux/notifications/notificationAction";
 
 const Notification = () => {
   const notificationData = useSelector(

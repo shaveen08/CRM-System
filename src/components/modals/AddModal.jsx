@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { Cancel01Icon } from "@hugeicons/core-free-icons";
 import { formConfig } from "../../config/formFields";
-import DynamicField from "../from/dynamicField";
+import DynamicField from "../from/DynamicField";
 import api from "../../api/axios";
 
 const AddModal = ({
