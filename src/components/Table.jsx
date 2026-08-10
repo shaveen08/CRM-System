@@ -38,7 +38,9 @@ const Table = ({ module, triggerNotification }) => {
   const fetchAPI = async () => {
     try {
       setError(null);
-      const response = await axios.get(`${import.meta.env.VITE_API_URL}${endpoint}`);
+      const response = await axios.get(
+        `${import.meta.env.VITE_API_URL}${endpoint}`,
+      );
       setApiData(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -424,7 +426,7 @@ const Table = ({ module, triggerNotification }) => {
         <div
           ref={tableRef}
           onScroll={handleScroll}
-          className="h-130 scroll-auto overflow-auto"
+          className="h-[65vh] sm:h-[70vh] lg:h-130 scroll-auto overflow-auto"
         >
           <table className="w-full text-sm text-nowrap">
             <thead className="bg-primary-50 sticky top-0 z-10">
