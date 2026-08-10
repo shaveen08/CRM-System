@@ -279,13 +279,6 @@ export const formConfig = {
         ],
       },
       {
-        name: "department",
-        label: "Department",
-        type: "text",
-        defaultValue: "",
-        colSpan: 6,
-      },
-      {
         name: "status",
         label: "Status",
         type: "select",
