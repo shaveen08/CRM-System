@@ -77,7 +77,7 @@ const Dashboard = () => {
 
   const handleExport = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/leads");
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/leads`);
       const leads = response.data.data;
       if (!leads.length) return;
       const headers = Object.keys(leads[0]).join(",");

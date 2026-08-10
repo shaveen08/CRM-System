@@ -7,7 +7,7 @@ export const DASHBOARD_ERROR = "DASHBOARD_ERROR";
 // Correct thunk pattern
 export const getDashboardData = () => async (dispatch) => {
   try {
-    const response = await axios.get("http://localhost:5000/api/dashboard");
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/dashboard`);
     dispatch({ type: DASHBOARD_LOADING });
     dispatch({ type: DASHBOARD_DATA, payload: response.data.data });
   } catch (error) {

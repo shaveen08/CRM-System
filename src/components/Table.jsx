@@ -38,7 +38,7 @@ const Table = ({ module, triggerNotification }) => {
   const fetchAPI = async () => {
     try {
       setError(null);
-      const response = await axios.get(`http://localhost:5000${endpoint}`);
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}${endpoint}`);
       setApiData(response.data.data);
     } catch (err) {
       console.error("Error fetching data:", err);
@@ -199,7 +199,7 @@ const Table = ({ module, triggerNotification }) => {
     try {
       await Promise.all(
         selectedIds.map((id) =>
-          axios.delete(`http://localhost:5000${endpoint}/${id}`),
+          axios.delete(`${import.meta.env.VITE_API_URL}${endpoint}/${id}`),
         ),
       );
       setSelectedIds([]);
